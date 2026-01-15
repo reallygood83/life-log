@@ -10,7 +10,7 @@ import { formatDurationHuman } from './parser/exercise';
 import { parseStudyLog } from './parser/study';
 import { serializeStudyLog, updateStudyTaskState, setStudyTaskDuration, setStudyScores } from './study-serializer';
 import { renderStudyLog } from './renderer/study';
-import { DEFAULT_SETTINGS, LifeLogSettingTab } from './settings';
+import { DEFAULT_SETTINGS, DEFAULT_SUBJECTS, LifeLogSettingTab } from './settings';
 import { QuickLogModal } from './modal/QuickLogModal';
 import { SelfEvalModal } from './modal/SelfEvalModal';
 
@@ -72,7 +72,9 @@ export default class LifeLogPlugin extends Plugin {
 			}
 		});
 
+		console.log('[Life Log] Registering settings tab...');
 		this.addSettingTab(new LifeLogSettingTab(this.app, this));
+		console.log('[Life Log] Settings tab registered');
 
 		this.updateRibbonIcon();
 	}
@@ -82,7 +84,12 @@ export default class LifeLogPlugin extends Plugin {
 	}
 
 	async loadSettings(): Promise<void> {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		const loaded = await this.loadData();
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, loaded);
+		
+		if (!this.settings.subjects || this.settings.subjects.length === 0) {
+			this.settings.subjects = [...DEFAULT_SUBJECTS];
+		}
 	}
 
 	async saveSettings(): Promise<void> {

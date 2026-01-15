@@ -35,13 +35,20 @@ export class LifeLogSettingTab extends PluginSettingTab {
 	constructor(app: App, plugin: LifeLogPlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
+		console.log('[Life Log] LifeLogSettingTab constructed');
 	}
 
 	display(): void {
+		console.log('[Life Log] LifeLogSettingTab.display() called');
 		const { containerEl } = this;
 		containerEl.empty();
 
-		containerEl.createEl('h2', { text: 'Life Log Settings' });
+		containerEl.createEl('h2', { text: 'Life Log 설정' });
+
+		if (!this.plugin.settings) {
+			containerEl.createEl('p', { text: '설정을 불러오는 중 오류가 발생했습니다.' });
+			return;
+		}
 
 		this.renderSaveSettings(containerEl);
 		this.renderStudySettings(containerEl);

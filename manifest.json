@@ -1,7 +1,7 @@
 {
 	"id": "life-log",
 	"name": "Life Log",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"minAppVersion": "0.15.0",
 	"description": "Track your study sessions and workouts with interactive timers, self-evaluation, and AI-friendly data export",
 	"author": "reallygood83",
