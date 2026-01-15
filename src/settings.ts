@@ -3,11 +3,11 @@ import { LifeLogSettings, SubjectPreset } from './types';
 import type LifeLogPlugin from './main';
 
 export const DEFAULT_SUBJECTS: SubjectPreset[] = [
-	{ name: '수학', icon: '📐', color: '#4A90D9' },
-	{ name: '영어', icon: '🔤', color: '#7B68EE' },
-	{ name: '프로그래밍', icon: '💻', color: '#50C878' },
-	{ name: '독서', icon: '📖', color: '#FFB347' },
-	{ name: '기타', icon: '📝', color: '#A0A0A0' },
+	{ name: '수학', icon: '', color: '#4A90D9' },
+	{ name: '영어', icon: '', color: '#7B68EE' },
+	{ name: '프로그래밍', icon: '', color: '#50C878' },
+	{ name: '독서', icon: '', color: '#FFB347' },
+	{ name: '기타', icon: '', color: '#A0A0A0' },
 ];
 
 export const DEFAULT_SETTINGS: LifeLogSettings = {

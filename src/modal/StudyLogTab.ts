@@ -40,8 +40,7 @@ export class StudyLogTab {
 				cls: `subject-btn ${this.selectedSubject?.name === subject.name ? 'selected' : ''}`
 			});
 			btn.style.setProperty('--subject-color', subject.color);
-			btn.createSpan({ text: subject.icon });
-			btn.createSpan({ text: subject.name });
+			btn.createSpan({ text: subject.name, cls: 'subject-name' });
 
 			btn.addEventListener('click', () => {
 				this.selectedSubject = subject;
@@ -75,7 +74,7 @@ export class StudyLogTab {
 			if (e.key === 'Enter' && input.value.trim()) {
 				this.selectedSubject = {
 					name: input.value.trim(),
-					icon: '📚',
+					icon: '',
 					color: '#808080'
 				};
 				inputWrapper.remove();
@@ -132,7 +131,7 @@ export class StudyLogTab {
 
 		const createBtn = section.createEl('button', {
 			cls: 'create-btn primary',
-			text: '📚 학습 기록 생성'
+			text: '학습 기록 생성'
 		});
 
 		createBtn.addEventListener('click', () => this.createStudyLog());

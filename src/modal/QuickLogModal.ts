@@ -37,7 +37,7 @@ export class QuickLogModal extends Modal {
 
 		const studyTab = tabsEl.createEl('button', {
 			cls: `modal-tab ${this.activeTab === 'study' ? 'active' : ''}`,
-			text: '📚 학습 기록'
+			text: '학습 기록'
 		});
 		studyTab.addEventListener('click', () => {
 			this.activeTab = 'study';
@@ -47,7 +47,7 @@ export class QuickLogModal extends Modal {
 
 		const workoutTab = tabsEl.createEl('button', {
 			cls: `modal-tab ${this.activeTab === 'workout' ? 'active' : ''}`,
-			text: '🏋️ 운동 기록'
+			text: '운동 기록'
 		});
 		workoutTab.addEventListener('click', () => {
 			this.activeTab = 'workout';

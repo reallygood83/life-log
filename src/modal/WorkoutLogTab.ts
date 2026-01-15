@@ -94,17 +94,17 @@ export class WorkoutLogTab {
 		const templateGrid = section.createDiv({ cls: 'template-grid' });
 
 		const templates = [
-			{ name: '상체 운동', icon: '💪', exercises: [
+			{ name: '상체 운동', exercises: [
 				{ name: '푸시업', params: 'Reps: [15]' },
 				{ name: '덤벨 로우', params: 'Weight: [10] kg | Reps: [12]' },
 				{ name: '숄더 프레스', params: 'Weight: [8] kg | Reps: [10]' }
 			]},
-			{ name: '하체 운동', icon: '🦵', exercises: [
+			{ name: '하체 운동', exercises: [
 				{ name: '스쿼트', params: 'Weight: [40] kg | Reps: [12]' },
 				{ name: '런지', params: 'Reps: [10] /leg' },
 				{ name: '카프레이즈', params: 'Reps: [20]' }
 			]},
-			{ name: 'HIIT', icon: '🔥', exercises: [
+			{ name: 'HIIT', exercises: [
 				{ name: '버피', params: 'Duration: [30s]' },
 				{ name: '점핑잭', params: 'Duration: [30s]' },
 				{ name: '마운틴 클라이머', params: 'Duration: [30s]' }
@@ -113,7 +113,6 @@ export class WorkoutLogTab {
 
 		for (const template of templates) {
 			const btn = templateGrid.createEl('button', { cls: 'template-btn' });
-			btn.createSpan({ text: template.icon });
 			btn.createSpan({ text: template.name });
 
 			btn.addEventListener('click', () => {
@@ -122,7 +121,7 @@ export class WorkoutLogTab {
 		}
 	}
 
-	private applyTemplate(template: { name: string; icon: string; exercises: ExerciseInput[] }): void {
+	private applyTemplate(template: { name: string; exercises: ExerciseInput[] }): void {
 		const titleInput = this.container.querySelector('.workout-title-input') as HTMLInputElement;
 		if (titleInput) {
 			titleInput.value = template.name;
@@ -165,7 +164,7 @@ export class WorkoutLogTab {
 
 		const createBtn = section.createEl('button', {
 			cls: 'create-btn primary',
-			text: '🏋️ 운동 기록 생성'
+			text: '운동 기록 생성'
 		});
 
 		createBtn.addEventListener('click', () => this.createWorkoutLog());
