@@ -74,12 +74,24 @@ export function renderWorkLog(ctx: WorkRendererContext): void {
 	if (isTimerRunning) {
 		let lastKnownActiveIndex = initialActiveIndex;
 
+		// Initial check to avoid playing sound immediately if already overtime upon load
+		const initialTask = initialActiveIndex >= 0 ? parsed.tasks[initialActiveIndex] : null;
+		let hasNotificationPlayed = (initialTask?.expectedDuration !== undefined && timerState)
+			? timerState.exerciseElapsed >= initialTask.expectedDuration
+			: false;
+
 		timerManager.subscribe(workId, (state: TimerState) => {
 			updateWorkHeaderTimer(headerElements.timerEl, state);
 
 			const currentActiveIndex = timerManager.getActiveExerciseIndex(workId);
 
 			if (currentActiveIndex !== lastKnownActiveIndex) {
+				lastKnownActiveIndex = currentActiveIndex;
+				// Reset notification flag for new task
+				const newTask = parsed.tasks[currentActiveIndex];
+				hasNotificationPlayed = (newTask?.expectedDuration !== undefined)
+					? state.exerciseElapsed >= newTask.expectedDuration
+					: false;
 				return;
 			}
 
@@ -92,6 +104,16 @@ export function renderWorkLog(ctx: WorkRendererContext): void {
 					state,
 					activeTask.expectedDuration
 				);
+
+				if (!hasNotificationPlayed && activeTask.expectedDuration !== undefined) {
+					if (state.exerciseElapsed >= activeTask.expectedDuration) {
+						hasNotificationPlayed = true;
+						playTimerCompleteNotification(
+							{ enableSound: enableTimerSound, enableNotification: enableNotification },
+							activeTask.name
+						);
+					}
+				}
 			}
 		});
 	}
