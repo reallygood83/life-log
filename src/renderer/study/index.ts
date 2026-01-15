@@ -3,6 +3,7 @@ import { renderStudyHeader, updateStudyHeaderTimer, StudyHeaderElements } from '
 import { renderStudyTask, updateStudyTaskTimer, StudyTaskElements } from './task';
 import { renderStudyControls } from './controls';
 import { TimerManager } from '../../timer/manager';
+import { playTimerCompleteNotification } from '../../utils/notification';
 
 export interface StudyRendererContext {
 	el: HTMLElement;
@@ -10,10 +11,12 @@ export interface StudyRendererContext {
 	callbacks: StudyLogCallbacks;
 	studyId: string;
 	timerManager: TimerManager;
+	enableTimerSound?: boolean;
+	enableNotification?: boolean;
 }
 
 export function renderStudyLog(ctx: StudyRendererContext): void {
-	const { el, parsed, callbacks, studyId, timerManager } = ctx;
+	const { el, parsed, callbacks, studyId, timerManager, enableTimerSound = true, enableNotification = false } = ctx;
 
 	el.empty();
 
@@ -94,6 +97,10 @@ export function renderStudyLog(ctx: StudyRendererContext): void {
 				if (!hasAutoAdvanced && activeTask.targetDuration !== undefined) {
 					if (state.exerciseElapsed >= activeTask.targetDuration) {
 						hasAutoAdvanced = true;
+						playTimerCompleteNotification(
+							{ enableSound: enableTimerSound, enableNotification: enableNotification },
+							activeTask.name
+						);
 						callbacks.onTaskFinish(currentActiveIndex);
 					}
 				}

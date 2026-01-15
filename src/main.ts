@@ -172,7 +172,9 @@ export default class LifeLogPlugin extends Plugin {
 			parsed,
 			callbacks,
 			studyId,
-			timerManager: this.timerManager
+			timerManager: this.timerManager,
+			enableTimerSound: this.settings.enableTimerSound,
+			enableNotification: this.settings.enableNotifications
 		});
 	}
 
