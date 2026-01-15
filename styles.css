@@ -1,0 +1,1125 @@
+/* Workout Container */
+.workout-container {
+	padding: 12px;
+	border-radius: 8px;
+	background: var(--background-secondary);
+	font-family: var(--font-interface);
+	font-size: 0.85em;
+}
+
+/* Header */
+.workout-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 12px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.workout-title {
+	font-size: 1.1em;
+	font-weight: 600;
+	color: var(--text-normal);
+}
+
+.workout-rest-duration {
+	font-size: 0.9em;
+	font-weight: 400;
+	color: var(--text-muted);
+	white-space: nowrap;
+}
+
+.workout-header-timer {
+	display: flex;
+	align-items: center;
+}
+
+.workout-timer {
+	font-size: 1em;
+	font-weight: 500;
+	font-family: var(--font-monospace);
+	color: var(--text-muted);
+}
+
+.workout-timer-indicator {
+	margin-left: 4px;
+}
+
+.workout-timer-indicator.count-up {
+	color: var(--color-green);
+}
+
+.workout-timer-indicator.recorded {
+	color: var(--color-green);
+}
+
+/* Exercises Container */
+.workout-exercises {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+/* Exercise Row */
+.workout-exercise {
+	padding: 6px 10px;
+	border-radius: 4px;
+	background: var(--background-primary);
+	border-left: 3px solid var(--exercise-color, var(--text-muted));
+}
+
+.workout-exercise.active {
+	border: 1px solid var(--interactive-accent);
+	border-left: 3px solid var(--exercise-color, var(--interactive-accent));
+	background: var(--background-primary-alt);
+}
+
+.workout-exercise.state-skipped {
+	opacity: 0.5;
+}
+
+.workout-exercise.state-skipped .workout-exercise-name {
+	text-decoration: line-through;
+}
+
+/* Exercise Main Row - single line */
+.workout-exercise-main {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	min-height: 24px;
+}
+
+.workout-exercise-icon {
+	font-size: 0.9em;
+	width: 16px;
+	text-align: center;
+	color: var(--text-muted);
+	flex-shrink: 0;
+}
+
+.workout-exercise.state-completed .workout-exercise-icon {
+	color: var(--color-green);
+}
+
+.workout-exercise.state-inProgress .workout-exercise-icon {
+	color: var(--interactive-accent);
+}
+
+.workout-exercise-name {
+	font-weight: 500;
+	color: var(--text-normal);
+	white-space: nowrap;
+	/* Use ch unit for character-based width */
+	min-width: calc(var(--max-name-chars, 10) * 1ch);
+}
+
+/* Simple exercise (no params) - center */
+.workout-exercise.simple .workout-exercise-main {
+	justify-content: center;
+}
+
+.workout-exercise.simple .workout-exercise-name {
+	flex: none;
+	min-width: auto;
+}
+
+/* Params inline - chip/pill style */
+.workout-exercise-params {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex: 1;
+}
+
+.workout-param {
+	display: inline-flex;
+	align-items: center;
+	gap: 1px;
+	white-space: nowrap;
+	padding: 0 8px;
+	border-radius: 12px;
+	background: var(--background-modifier-hover);
+	font-size: 0.9em;
+	height: 28px;
+	overflow: hidden;
+}
+
+.workout-param-prefix {
+	color: var(--text-muted);
+	margin-right: 1px;
+}
+
+.workout-param-value {
+	color: var(--text-normal);
+	font-weight: 500;
+	min-width: 20px;
+	text-align: center;
+}
+
+.workout-param-input {
+	width: 40px;
+	height: 20px;
+	padding: 0;
+	margin: 0;
+	border: none;
+	border-radius: 0;
+	background: transparent;
+	color: var(--text-normal);
+	font-family: inherit;
+	font-size: inherit;
+	font-weight: 500;
+	text-align: center;
+	box-sizing: border-box;
+}
+
+.workout-param-input:focus {
+	outline: none;
+}
+
+.workout-param-unit {
+	color: var(--text-muted);
+	margin-left: 1px;
+}
+
+/* Timer */
+.workout-exercise-timer {
+	font-family: var(--font-monospace);
+	font-size: 0.9em;
+	color: var(--text-muted);
+	flex-shrink: 0;
+	margin-left: auto;
+}
+
+.workout-exercise-timer.overtime {
+	color: var(--color-red);
+}
+
+.timer-indicator {
+	margin-left: 2px;
+	font-size: 0.85em;
+}
+
+.timer-indicator.count-up {
+	color: var(--color-green);
+}
+
+.timer-indicator.count-down {
+	color: var(--color-orange);
+}
+
+.timer-indicator.recorded {
+	color: var(--color-green);
+}
+
+.timer-indicator.overtime {
+	color: var(--color-red);
+}
+
+/* Exercise Controls */
+.workout-exercise-controls {
+	display: flex;
+	gap: 6px;
+	margin-top: 8px;
+	justify-content: center;
+}
+
+/* Workout Controls */
+.workout-controls {
+	margin-top: 12px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 10px;
+}
+
+/* Buttons */
+.workout-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 4px 12px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	background: var(--background-secondary);
+	color: var(--text-normal);
+	font-family: var(--font-interface);
+	font-size: 0.85em;
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+
+.workout-btn:hover {
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+	border-color: var(--interactive-accent);
+}
+
+.workout-btn-large {
+	padding: 8px 20px;
+	font-size: 0.95em;
+	font-weight: 500;
+}
+
+/* Button group (finish actions) - just adds spacing before the group */
+.workout-btn-group {
+	display: inline-flex;
+	gap: 6px;
+	margin-left: 12px;
+}
+
+/* Completed label */
+.workout-completed-label {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	color: var(--color-green);
+	font-weight: 500;
+	font-size: 0.9em;
+}
+
+/* Empty State */
+.workout-empty-state {
+	padding: 40px 20px;
+	text-align: center;
+}
+
+.workout-empty-message {
+	color: var(--text-muted);
+	margin-bottom: 20px;
+	font-size: 0.95em;
+}
+
+.workout-empty-action {
+	display: flex;
+	justify-content: center;
+}
+
+.workout-btn-primary {
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+	border-color: var(--interactive-accent);
+}
+
+.workout-btn-primary:hover {
+	background: var(--interactive-accent-hover);
+	border-color: var(--interactive-accent-hover);
+}
+
+.workout-btn-icon {
+	margin-right: 6px;
+}
+
+/* Mobile Responsive Layout (phones and small tablets) */
+@media (max-width: 768px) {
+	/* Workout Container - More compact */
+	.workout-container {
+		padding: 10px;
+	}
+
+	/* Header - Stack layout and reduce spacing */
+	.workout-header {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 6px;
+		margin-bottom: 10px;
+		padding-bottom: 8px;
+	}
+
+	/* Header timer container - Full width with space-between */
+	.workout-header-timer {
+		width: 100%;
+		justify-content: space-between;
+	}
+
+	/* Rest duration on same line as timer on mobile */
+	.workout-rest-duration {
+		order: 10;
+	}
+
+	/* Exercises Container - Tighter gaps */
+	.workout-exercises {
+		gap: 3px;
+	}
+
+	/* Individual Exercise - More compact */
+	.workout-exercise {
+		padding: 6px 8px;
+	}
+
+	/* Exercise Main Row - Allow wrapping */
+	.workout-exercise-main {
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 8px;
+	}
+
+	/* Exercise Name - Natural width */
+	.workout-exercise-name {
+		min-width: auto;
+		flex: 0 1 auto;
+	}
+
+	/* Params Container - Force to next line, allow internal wrapping */
+	.workout-exercise-params {
+		flex-basis: 100%;
+		flex-wrap: wrap;
+		gap: 6px;
+		order: 10;
+	}
+
+	/* Individual Param Pills - Larger touch targets */
+	.workout-param {
+		height: 36px;
+		padding: 0 10px;
+		font-size: 0.95em;
+		min-width: 100px;
+	}
+
+	/* Input Fields - Much larger for touch */
+	.workout-param-input {
+		width: 60px;
+		height: 28px;
+		font-size: 1em;
+		padding: 0 4px;
+	}
+
+	/* Timer - Keep on right side of first row */
+	.workout-exercise-timer {
+		order: 5;
+	}
+
+	/* Exercise Controls - Smaller gaps */
+	.workout-exercise-controls {
+		gap: 4px;
+		margin-top: 6px;
+	}
+
+	/* Buttons - Smaller but still touch-friendly */
+	.workout-btn {
+		padding: 6px 8px;
+		font-size: 0.8em;
+		min-height: 36px;
+	}
+
+	/* Button Group - Less left margin */
+	.workout-btn-group {
+		margin-left: 6px;
+	}
+
+	/* Large Buttons - Scale down */
+	.workout-btn-large {
+		padding: 8px 14px;
+		font-size: 0.9em;
+	}
+}
+
+/* ============================================
+   STUDY LOG STYLES
+   ============================================ */
+
+.study-container {
+	padding: 12px;
+	border-radius: 8px;
+	background: var(--background-secondary);
+	font-family: var(--font-interface);
+	font-size: 0.85em;
+}
+
+.study-header {
+	margin-bottom: 12px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.study-header-top {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 8px;
+}
+
+.study-title {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 1.1em;
+	font-weight: 600;
+	color: var(--text-normal);
+}
+
+.study-subject-icon {
+	font-size: 1.2em;
+}
+
+.study-subject-name {
+	color: var(--interactive-accent);
+}
+
+.study-title-text {
+	color: var(--text-muted);
+	font-weight: 400;
+}
+
+.study-timer {
+	font-family: var(--font-monospace);
+	font-size: 1em;
+	color: var(--text-muted);
+}
+
+.study-timer-indicator {
+	margin-left: 4px;
+}
+
+.study-timer-indicator.count-up {
+	color: var(--color-green);
+}
+
+.study-timer-indicator.recorded {
+	color: var(--color-green);
+}
+
+.study-scores {
+	display: flex;
+	gap: 16px;
+	margin-top: 8px;
+}
+
+.study-score-item {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.study-score-label {
+	color: var(--text-muted);
+	font-size: 0.9em;
+}
+
+.study-stars {
+	display: inline-flex;
+	gap: 2px;
+}
+
+.study-star {
+	color: var(--text-muted);
+}
+
+.study-star.filled {
+	color: var(--color-yellow);
+}
+
+.study-stars.score-1 .study-star.filled { color: #FF6B6B; }
+.study-stars.score-2 .study-star.filled { color: #FFA07A; }
+.study-stars.score-3 .study-star.filled { color: #FFD93D; }
+.study-stars.score-4 .study-star.filled { color: #90EE90; }
+.study-stars.score-5 .study-star.filled { color: #50C878; }
+
+.study-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-top: 8px;
+}
+
+.study-tag {
+	padding: 2px 8px;
+	border-radius: 10px;
+	background: var(--background-modifier-hover);
+	color: var(--text-muted);
+	font-size: 0.8em;
+}
+
+.study-tasks {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.study-task {
+	padding: 8px 12px;
+	border-radius: 4px;
+	background: var(--background-primary);
+	border-left: 3px solid var(--text-muted);
+}
+
+.study-task.active {
+	border: 1px solid var(--interactive-accent);
+	border-left: 3px solid var(--interactive-accent);
+	background: var(--background-primary-alt);
+}
+
+.study-task.state-completed {
+	border-left-color: var(--color-green);
+}
+
+.study-task.state-skipped {
+	opacity: 0.5;
+}
+
+.study-task.state-skipped .study-task-name {
+	text-decoration: line-through;
+}
+
+.study-task-main {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.study-task-icon {
+	font-size: 0.9em;
+	width: 16px;
+	text-align: center;
+	color: var(--text-muted);
+}
+
+.study-task.state-completed .study-task-icon {
+	color: var(--color-green);
+}
+
+.study-task.state-inProgress .study-task-icon {
+	color: var(--interactive-accent);
+}
+
+.study-task-name {
+	font-weight: 500;
+	color: var(--text-normal);
+	flex: 1;
+}
+
+.study-task-notes {
+	color: var(--text-muted);
+	font-size: 0.9em;
+	font-style: italic;
+}
+
+.study-task-timer {
+	font-family: var(--font-monospace);
+	font-size: 0.9em;
+	color: var(--text-muted);
+}
+
+.study-task-timer.overtime {
+	color: var(--color-red);
+}
+
+.study-task-timer.target {
+	color: var(--text-faint);
+}
+
+.study-task-controls {
+	display: flex;
+	gap: 6px;
+	margin-top: 8px;
+	justify-content: center;
+}
+
+.study-controls {
+	margin-top: 12px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 10px;
+}
+
+.study-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 4px 12px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	background: var(--background-secondary);
+	color: var(--text-normal);
+	font-family: var(--font-interface);
+	font-size: 0.85em;
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+
+.study-btn:hover {
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+	border-color: var(--interactive-accent);
+}
+
+.study-btn-primary {
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+	border-color: var(--interactive-accent);
+}
+
+.study-btn-large {
+	padding: 8px 20px;
+	font-size: 0.95em;
+	font-weight: 500;
+}
+
+.study-btn-icon {
+	margin-right: 6px;
+}
+
+.study-completed-label {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	color: var(--color-green);
+	font-weight: 500;
+	font-size: 0.9em;
+}
+
+.study-empty-state {
+	padding: 40px 20px;
+	text-align: center;
+}
+
+.study-empty-message {
+	color: var(--text-muted);
+	font-size: 0.95em;
+}
+
+/* ============================================
+   MODAL STYLES
+   ============================================ */
+
+.quick-log-modal {
+	padding: 0;
+}
+
+.quick-log-modal .modal-header {
+	padding: 16px 20px;
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.quick-log-modal .modal-header h2 {
+	margin: 0;
+	font-size: 1.2em;
+}
+
+.modal-tabs {
+	display: flex;
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.modal-tab {
+	flex: 1;
+	padding: 12px 16px;
+	background: transparent;
+	border: none;
+	border-bottom: 2px solid transparent;
+	color: var(--text-muted);
+	font-size: 0.95em;
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+
+.modal-tab:hover {
+	color: var(--text-normal);
+	background: var(--background-modifier-hover);
+}
+
+.modal-tab.active {
+	color: var(--interactive-accent);
+	border-bottom-color: var(--interactive-accent);
+}
+
+.modal-tab-content {
+	padding: 20px;
+	max-height: 60vh;
+	overflow-y: auto;
+}
+
+.tab-section {
+	margin-bottom: 20px;
+}
+
+.tab-label {
+	display: block;
+	margin-bottom: 8px;
+	font-weight: 500;
+	color: var(--text-normal);
+}
+
+.subject-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+	gap: 8px;
+}
+
+.subject-btn {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+	padding: 12px 8px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 8px;
+	background: var(--background-primary);
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+
+.subject-btn:hover {
+	border-color: var(--interactive-accent);
+	background: var(--background-modifier-hover);
+}
+
+.subject-btn.selected {
+	border-color: var(--interactive-accent);
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+}
+
+.subject-btn-add {
+	border-style: dashed;
+	color: var(--text-muted);
+}
+
+.custom-subject-input {
+	margin-top: 10px;
+}
+
+.custom-subject-input input {
+	width: 100%;
+	padding: 8px 12px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	background: var(--background-primary);
+}
+
+.task-input-list,
+.exercise-input-list {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.task-input-row,
+.exercise-input-row {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+
+.task-name-input,
+.exercise-name-input {
+	flex: 2;
+	padding: 8px 12px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	background: var(--background-primary);
+}
+
+.task-duration-input,
+.exercise-params-input {
+	flex: 1;
+	padding: 8px 12px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	background: var(--background-primary);
+}
+
+.task-remove-btn,
+.exercise-remove-btn {
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	border: none;
+	border-radius: 4px;
+	background: transparent;
+	color: var(--text-muted);
+	font-size: 1.2em;
+	cursor: pointer;
+}
+
+.task-remove-btn:hover,
+.exercise-remove-btn:hover {
+	color: var(--color-red);
+	background: var(--background-modifier-hover);
+}
+
+.add-task-btn,
+.add-exercise-btn {
+	padding: 8px 16px;
+	border: 1px dashed var(--background-modifier-border);
+	border-radius: 4px;
+	background: transparent;
+	color: var(--text-muted);
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+
+.add-task-btn:hover,
+.add-exercise-btn:hover {
+	border-color: var(--interactive-accent);
+	color: var(--interactive-accent);
+}
+
+.template-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+	gap: 8px;
+}
+
+.template-btn {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+	padding: 12px 8px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 8px;
+	background: var(--background-primary);
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+
+.template-btn:hover {
+	border-color: var(--interactive-accent);
+	background: var(--background-modifier-hover);
+}
+
+.tab-actions {
+	display: flex;
+	justify-content: center;
+	padding-top: 12px;
+	border-top: 1px solid var(--background-modifier-border);
+}
+
+.create-btn {
+	padding: 12px 24px;
+	border: none;
+	border-radius: 6px;
+	font-size: 1em;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+
+.create-btn.primary {
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+}
+
+.create-btn.primary:hover {
+	background: var(--interactive-accent-hover);
+}
+
+/* ============================================
+   SELF EVAL MODAL STYLES
+   ============================================ */
+
+.self-eval-modal {
+	padding: 20px;
+}
+
+.self-eval-modal h2 {
+	margin: 0 0 20px 0;
+	text-align: center;
+}
+
+.eval-section {
+	margin-bottom: 20px;
+}
+
+.eval-label {
+	display: block;
+	margin-bottom: 8px;
+	font-weight: 500;
+	color: var(--text-normal);
+}
+
+.eval-stars {
+	display: flex;
+	gap: 8px;
+	justify-content: center;
+}
+
+.eval-star {
+	font-size: 2em;
+	cursor: pointer;
+	color: var(--text-muted);
+	transition: all 0.15s ease;
+}
+
+.eval-star.filled {
+	color: var(--color-yellow);
+}
+
+.eval-star.hover {
+	color: var(--color-yellow);
+	transform: scale(1.1);
+}
+
+.eval-notes-input {
+	width: 100%;
+	padding: 12px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	background: var(--background-primary);
+	resize: vertical;
+	font-family: inherit;
+}
+
+.eval-buttons {
+	display: flex;
+	justify-content: center;
+	gap: 12px;
+	margin-top: 20px;
+}
+
+.eval-btn {
+	padding: 10px 20px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	font-size: 0.95em;
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+
+.eval-btn-secondary {
+	background: var(--background-secondary);
+	color: var(--text-normal);
+}
+
+.eval-btn-secondary:hover {
+	background: var(--background-modifier-hover);
+}
+
+.eval-btn-primary {
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+	border-color: var(--interactive-accent);
+}
+
+.eval-btn-primary:hover {
+	background: var(--interactive-accent-hover);
+}
+
+/* ============================================
+   SETTINGS TAB STYLES
+   ============================================ */
+
+.subject-manager {
+	margin-top: 12px;
+}
+
+.subject-list {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin-top: 12px;
+}
+
+.subject-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px;
+	background: var(--background-primary);
+	border-radius: 4px;
+}
+
+.subject-icon-input {
+	width: 40px;
+	padding: 4px;
+	text-align: center;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	background: var(--background-secondary);
+}
+
+.subject-name-input {
+	flex: 1;
+	padding: 4px 8px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	background: var(--background-secondary);
+}
+
+.subject-color-input {
+	width: 40px;
+	height: 28px;
+	padding: 0;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.subject-delete-btn {
+	padding: 4px 8px;
+	border: none;
+	border-radius: 4px;
+	background: transparent;
+	color: var(--text-muted);
+	cursor: pointer;
+}
+
+.subject-delete-btn:hover {
+	color: var(--color-red);
+	background: var(--background-modifier-hover);
+}
+
+/* ============================================
+   MOBILE RESPONSIVE - STUDY LOG
+   ============================================ */
+
+@media (max-width: 768px) {
+	.study-container {
+		padding: 10px;
+	}
+
+	.study-header-top {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+	}
+
+	.study-scores {
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	.study-task {
+		padding: 8px;
+	}
+
+	.study-task-main {
+		flex-wrap: wrap;
+	}
+
+	.study-task-controls {
+		gap: 4px;
+	}
+
+	.study-btn {
+		padding: 6px 10px;
+		font-size: 0.8em;
+		min-height: 36px;
+	}
+
+	.modal-tab-content {
+		padding: 16px;
+	}
+
+	.subject-grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
+	.task-input-row,
+	.exercise-input-row {
+		flex-wrap: wrap;
+	}
+
+	.task-name-input,
+	.exercise-name-input {
+		flex-basis: 100%;
+	}
+
+	.task-duration-input,
+	.exercise-params-input {
+		flex: 1;
+	}
+}

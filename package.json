@@ -1,0 +1,35 @@
+{
+	"name": "obsidian-life-log",
+	"version": "2.0.0",
+	"description": "Track your study sessions and workouts with interactive timers, self-evaluation, and AI-friendly data export",
+	"main": "main.js",
+	"type": "module",
+	"scripts": {
+		"dev": "node esbuild.config.mjs",
+		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production"
+	},
+	"keywords": [
+		"obsidian",
+		"workout",
+		"fitness",
+		"timer",
+		"lifelog",
+		"life-log"
+	],
+	"author": "reallygood83",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/reallygood83/life-log"
+	},
+	"license": "MIT",
+	"devDependencies": {
+		"@types/node": "^16.11.6",
+		"esbuild": "0.25.5",
+		"tslib": "2.4.0",
+		"typescript": "^5.8.3"
+	},
+	"dependencies": {
+		"obsidian": "latest"
+	},
+	"packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+}

@@ -1,0 +1,270 @@
+import { App, PluginSettingTab, Setting } from 'obsidian';
+import { LifeLogSettings, SubjectPreset } from './types';
+import type LifeLogPlugin from './main';
+
+export const DEFAULT_SUBJECTS: SubjectPreset[] = [
+	{ name: '수학', icon: '📐', color: '#4A90D9' },
+	{ name: '영어', icon: '🔤', color: '#7B68EE' },
+	{ name: '프로그래밍', icon: '💻', color: '#50C878' },
+	{ name: '독서', icon: '📖', color: '#FFB347' },
+	{ name: '기타', icon: '📝', color: '#A0A0A0' },
+];
+
+export const DEFAULT_SETTINGS: LifeLogSettings = {
+	logFolder: 'Life Logs',
+	dateFormat: 'YYYY-MM-DD',
+	
+	subjects: DEFAULT_SUBJECTS,
+	defaultStudyDuration: 30,
+	enablePomodoro: false,
+	pomodoroWork: 25,
+	pomodoroBreak: 5,
+	
+	defaultRestDuration: 60,
+	
+	defaultTab: 'study',
+	showRibbonIcon: true,
+	
+	enableTimerSound: true,
+	enableNotifications: false,
+};
+
+export class LifeLogSettingTab extends PluginSettingTab {
+	plugin: LifeLogPlugin;
+
+	constructor(app: App, plugin: LifeLogPlugin) {
+		super(app, plugin);
+		this.plugin = plugin;
+	}
+
+	display(): void {
+		const { containerEl } = this;
+		containerEl.empty();
+
+		containerEl.createEl('h2', { text: 'Life Log Settings' });
+
+		this.renderSaveSettings(containerEl);
+		this.renderStudySettings(containerEl);
+		this.renderWorkoutSettings(containerEl);
+		this.renderUISettings(containerEl);
+		this.renderNotificationSettings(containerEl);
+	}
+
+	private renderSaveSettings(containerEl: HTMLElement): void {
+		containerEl.createEl('h3', { text: '📁 저장 설정' });
+
+		new Setting(containerEl)
+			.setName('기록 저장 폴더')
+			.setDesc('학습/운동 기록이 저장될 폴더 경로')
+			.addText(text => text
+				.setPlaceholder('Life Logs')
+				.setValue(this.plugin.settings.logFolder)
+				.onChange(async (value) => {
+					this.plugin.settings.logFolder = value || 'Life Logs';
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
+			.setName('날짜 형식')
+			.setDesc('파일명에 사용될 날짜 형식')
+			.addDropdown(dropdown => dropdown
+				.addOption('YYYY-MM-DD', 'YYYY-MM-DD')
+				.addOption('YYYY/MM/DD', 'YYYY/MM/DD')
+				.addOption('DD-MM-YYYY', 'DD-MM-YYYY')
+				.setValue(this.plugin.settings.dateFormat)
+				.onChange(async (value) => {
+					this.plugin.settings.dateFormat = value;
+					await this.plugin.saveSettings();
+				}));
+	}
+
+	private renderStudySettings(containerEl: HTMLElement): void {
+		containerEl.createEl('h3', { text: '📚 학습 기록 설정' });
+
+		new Setting(containerEl)
+			.setName('기본 목표 시간')
+			.setDesc('학습 항목의 기본 목표 시간 (분)')
+			.addText(text => text
+				.setPlaceholder('30')
+				.setValue(String(this.plugin.settings.defaultStudyDuration))
+				.onChange(async (value) => {
+					const num = parseInt(value) || 30;
+					this.plugin.settings.defaultStudyDuration = Math.max(1, Math.min(480, num));
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
+			.setName('포모도로 모드')
+			.setDesc('25분 학습 + 5분 휴식 사이클 활성화')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.enablePomodoro)
+				.onChange(async (value) => {
+					this.plugin.settings.enablePomodoro = value;
+					await this.plugin.saveSettings();
+				}));
+
+		if (this.plugin.settings.enablePomodoro) {
+			new Setting(containerEl)
+				.setName('작업 시간')
+				.setDesc('포모도로 작업 시간 (분)')
+				.addText(text => text
+					.setPlaceholder('25')
+					.setValue(String(this.plugin.settings.pomodoroWork))
+					.onChange(async (value) => {
+						const num = parseInt(value) || 25;
+						this.plugin.settings.pomodoroWork = Math.max(1, Math.min(60, num));
+						await this.plugin.saveSettings();
+					}));
+
+			new Setting(containerEl)
+				.setName('휴식 시간')
+				.setDesc('포모도로 휴식 시간 (분)')
+				.addText(text => text
+					.setPlaceholder('5')
+					.setValue(String(this.plugin.settings.pomodoroBreak))
+					.onChange(async (value) => {
+						const num = parseInt(value) || 5;
+						this.plugin.settings.pomodoroBreak = Math.max(1, Math.min(30, num));
+						await this.plugin.saveSettings();
+					}));
+		}
+
+		this.renderSubjectManager(containerEl);
+	}
+
+	private renderSubjectManager(containerEl: HTMLElement): void {
+		const subjectContainer = containerEl.createDiv({ cls: 'subject-manager' });
+		
+		new Setting(subjectContainer)
+			.setName('과목 관리')
+			.setDesc('자주 사용하는 과목을 관리합니다')
+			.addButton(button => button
+				.setButtonText('+ 과목 추가')
+				.onClick(async () => {
+					this.plugin.settings.subjects.push({
+						name: '새 과목',
+						icon: '📚',
+						color: '#808080'
+					});
+					await this.plugin.saveSettings();
+					this.display();
+				}));
+
+		const subjectList = subjectContainer.createDiv({ cls: 'subject-list' });
+		
+		for (let i = 0; i < this.plugin.settings.subjects.length; i++) {
+			const subject = this.plugin.settings.subjects[i];
+			if (!subject) continue;
+
+			const subjectRow = subjectList.createDiv({ cls: 'subject-row' });
+			
+			const iconInput = subjectRow.createEl('input', {
+				type: 'text',
+				value: subject.icon,
+				cls: 'subject-icon-input'
+			});
+			iconInput.maxLength = 2;
+			iconInput.addEventListener('change', async () => {
+				subject.icon = iconInput.value || '📚';
+				await this.plugin.saveSettings();
+			});
+
+			const nameInput = subjectRow.createEl('input', {
+				type: 'text',
+				value: subject.name,
+				cls: 'subject-name-input'
+			});
+			nameInput.addEventListener('change', async () => {
+				subject.name = nameInput.value || '과목';
+				await this.plugin.saveSettings();
+			});
+
+			const colorInput = subjectRow.createEl('input', {
+				type: 'color',
+				value: subject.color,
+				cls: 'subject-color-input'
+			});
+			colorInput.addEventListener('change', async () => {
+				subject.color = colorInput.value;
+				await this.plugin.saveSettings();
+			});
+
+			const deleteBtn = subjectRow.createEl('button', {
+				text: '🗑',
+				cls: 'subject-delete-btn'
+			});
+			deleteBtn.addEventListener('click', async () => {
+				this.plugin.settings.subjects.splice(i, 1);
+				await this.plugin.saveSettings();
+				this.display();
+			});
+		}
+	}
+
+	private renderWorkoutSettings(containerEl: HTMLElement): void {
+		containerEl.createEl('h3', { text: '🏋️ 운동 기록 설정' });
+
+		new Setting(containerEl)
+			.setName('기본 휴식 시간')
+			.setDesc('운동 세트 사이 기본 휴식 시간 (초)')
+			.addText(text => text
+				.setPlaceholder('60')
+				.setValue(String(this.plugin.settings.defaultRestDuration))
+				.onChange(async (value) => {
+					const num = parseInt(value) || 60;
+					this.plugin.settings.defaultRestDuration = Math.max(10, Math.min(300, num));
+					await this.plugin.saveSettings();
+				}));
+	}
+
+	private renderUISettings(containerEl: HTMLElement): void {
+		containerEl.createEl('h3', { text: '🎨 UI 설정' });
+
+		new Setting(containerEl)
+			.setName('기본 탭')
+			.setDesc('새 기록 모달을 열 때 기본으로 선택되는 탭')
+			.addDropdown(dropdown => dropdown
+				.addOption('study', '학습 기록')
+				.addOption('workout', '운동 기록')
+				.setValue(this.plugin.settings.defaultTab)
+				.onChange(async (value: 'study' | 'workout') => {
+					this.plugin.settings.defaultTab = value;
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
+			.setName('리본 아이콘')
+			.setDesc('왼쪽 사이드바에 빠른 접근 아이콘 표시')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.showRibbonIcon)
+				.onChange(async (value) => {
+					this.plugin.settings.showRibbonIcon = value;
+					await this.plugin.saveSettings();
+					this.plugin.updateRibbonIcon();
+				}));
+	}
+
+	private renderNotificationSettings(containerEl: HTMLElement): void {
+		containerEl.createEl('h3', { text: '🔔 알림 설정' });
+
+		new Setting(containerEl)
+			.setName('타이머 완료음')
+			.setDesc('카운트다운 완료 시 알림음 재생')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.enableTimerSound)
+				.onChange(async (value) => {
+					this.plugin.settings.enableTimerSound = value;
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
+			.setName('시스템 알림')
+			.setDesc('타이머 완료 시 시스템 알림 표시')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.enableNotifications)
+				.onChange(async (value) => {
+					this.plugin.settings.enableNotifications = value;
+					await this.plugin.saveSettings();
+				}));
+	}
+}
