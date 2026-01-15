@@ -54,8 +54,9 @@ export class FileUpdater {
 			const startLine = lines[sectionInfo.lineStart];
 			const isLifeLog = startLine?.trim().startsWith('```life-log');
 			const isStudyLog = startLine?.trim().startsWith('```study-log');
-			if (!startLine || (!isLifeLog && !isStudyLog)) {
-				console.error('Stale sectionInfo: expected ```life-log or ```study-log at line', sectionInfo.lineStart);
+			const isWorkLog = startLine?.trim().startsWith('```work-log');
+			if (!startLine || (!isLifeLog && !isStudyLog && !isWorkLog)) {
+				console.error('Stale sectionInfo: expected ```life-log, ```study-log, or ```work-log at line', sectionInfo.lineStart);
 				return content;
 			}
 

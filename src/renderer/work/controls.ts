@@ -15,9 +15,15 @@ export function renderWorkControls(
 		});
 		startBtn.createSpan({ cls: 'work-btn-icon', text: '▶' });
 		startBtn.createSpan({ text: '업무 시작' });
-		startBtn.addEventListener('click', () => {
+		startBtn.addEventListener('click', async () => {
+			console.log('[Life Log] Work start button clicked');
 			initAudioContext();
-			callbacks.onStartWork();
+			try {
+				await callbacks.onStartWork();
+				console.log('[Life Log] onStartWork completed');
+			} catch (e) {
+				console.error('[Life Log] onStartWork error:', e);
+			}
 		});
 	} else if (state === 'started') {
 		const finishBtn = controlsEl.createEl('button', {
