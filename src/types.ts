@@ -53,23 +53,43 @@ export interface ParsedWorkout {
 	metadataEndIndex: number;    // Line index where metadata section ends (after ---)
 }
 
+// Pomodoro phase
+export type PomodoroPhase = 'work' | 'break' | 'longBreak';
+
 // Timer instance for a workout
 export interface TimerInstance {
 	workoutId: string;
-	workoutStartTime: number;    // Timestamp when workout started
-	exerciseStartTime: number;   // Timestamp when current exercise started
-	exercisePausedTime: number;  // Accumulated paused time for current exercise
+	workoutStartTime: number;
+	exerciseStartTime: number;
+	exercisePausedTime: number;
 	isPaused: boolean;
 	activeExerciseIndex: number;
 	callbacks: Set<TimerCallback>;
+	
+	// Pomodoro state
+	pomodoroEnabled: boolean;
+	pomodoroPhase: PomodoroPhase;
+	pomodoroCycle: number;
+	pomodoroWorkDuration: number;
+	pomodoroBreakDuration: number;
+	pomodoroPhaseStartTime: number;
+	pomodoroPausedTime: number;
 }
 
 // Timer state passed to UI
 export interface TimerState {
-	workoutElapsed: number;      // Total workout elapsed seconds
-	exerciseElapsed: number;     // Current exercise elapsed seconds
-	remaining?: number;          // Seconds remaining (countdown mode)
-	isOvertime: boolean;         // True if countdown exceeded
+	workoutElapsed: number;
+	exerciseElapsed: number;
+	remaining?: number;
+	isOvertime: boolean;
+	
+	// Pomodoro state
+	pomodoroEnabled?: boolean;
+	pomodoroPhase?: PomodoroPhase;
+	pomodoroCycle?: number;
+	pomodoroElapsed?: number;
+	pomodoroRemaining?: number;
+	pomodoroProgress?: number;
 }
 
 export type TimerCallback = (state: TimerState) => void;

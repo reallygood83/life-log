@@ -1,5 +1,6 @@
 import { WorkoutState, WorkoutCallbacks, ParsedWorkout } from '../types';
 import { serializeWorkoutAsTemplate } from '../serializer';
+import { initAudioContext } from '../utils/audio';
 
 export function renderWorkoutControls(
 	container: HTMLElement,
@@ -16,6 +17,7 @@ export function renderWorkoutControls(
 		startBtn.createSpan({ cls: 'workout-btn-icon', text: '▶' });
 		startBtn.createSpan({ text: 'Start Workout' });
 		startBtn.addEventListener('click', () => {
+			initAudioContext();
 			callbacks.onStartWorkout();
 		});
 	} else if (state === 'completed') {

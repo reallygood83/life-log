@@ -1,4 +1,5 @@
 import { WorkState, WorkLogCallbacks, ParsedWorkLog } from '../../types';
+import { initAudioContext } from '../../utils/audio';
 
 export function renderWorkControls(
 	container: HTMLElement,
@@ -14,7 +15,10 @@ export function renderWorkControls(
 		});
 		startBtn.createSpan({ cls: 'work-btn-icon', text: '▶' });
 		startBtn.createSpan({ text: '업무 시작' });
-		startBtn.addEventListener('click', () => callbacks.onStartWork());
+		startBtn.addEventListener('click', () => {
+			initAudioContext();
+			callbacks.onStartWork();
+		});
 	} else if (state === 'started') {
 		const finishBtn = controlsEl.createEl('button', {
 			cls: 'work-btn work-btn-primary'

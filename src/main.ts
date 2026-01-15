@@ -595,7 +595,15 @@ export default class LifeLogPlugin extends Plugin {
 				}
 
 				await updateFile(currentParsed);
-				this.timerManager.startWorkoutTimer(studyId, firstPending >= 0 ? firstPending : 0);
+				this.timerManager.startWorkoutTimer(
+					studyId,
+					firstPending >= 0 ? firstPending : 0,
+					this.settings.enablePomodoro ? {
+						enabled: true,
+						workDuration: this.settings.pomodoroWork * 60,
+						breakDuration: this.settings.pomodoroBreak * 60
+					} : undefined
+				);
 			},
 
 			onFinishStudy: async (): Promise<void> => {

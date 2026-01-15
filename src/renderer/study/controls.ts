@@ -1,4 +1,5 @@
 import { StudyState, StudyLogCallbacks, ParsedStudyLog } from '../../types';
+import { initAudioContext } from '../../utils/audio';
 
 export function renderStudyControls(
 	container: HTMLElement,
@@ -14,7 +15,10 @@ export function renderStudyControls(
 		});
 		startBtn.createSpan({ cls: 'study-btn-icon', text: '▶' });
 		startBtn.createSpan({ text: '학습 시작' });
-		startBtn.addEventListener('click', () => callbacks.onStartStudy());
+		startBtn.addEventListener('click', () => {
+			initAudioContext();
+			callbacks.onStartStudy();
+		});
 	} else if (state === 'started') {
 		const finishBtn = controlsEl.createEl('button', {
 			cls: 'study-btn study-btn-primary'
