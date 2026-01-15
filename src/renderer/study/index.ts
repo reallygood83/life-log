@@ -73,7 +73,12 @@ export function renderStudyLog(ctx: StudyRendererContext): void {
 
 	if (isTimerRunning) {
 		let lastKnownActiveIndex = initialActiveIndex;
-		let hasAutoAdvanced = false;
+
+		// Initial check to avoid playing sound immediately if already overtime upon load
+		const initialTask = initialActiveIndex >= 0 ? parsed.tasks[initialActiveIndex] : null;
+		let hasNotificationPlayed = (initialTask?.targetDuration !== undefined && timerState)
+			? timerState.exerciseElapsed >= initialTask.targetDuration
+			: false;
 
 		timerManager.subscribe(studyId, (state: TimerState) => {
 			updateStudyHeaderTimer(headerElements.timerEl, state);
@@ -81,6 +86,12 @@ export function renderStudyLog(ctx: StudyRendererContext): void {
 			const currentActiveIndex = timerManager.getActiveExerciseIndex(studyId);
 
 			if (currentActiveIndex !== lastKnownActiveIndex) {
+				lastKnownActiveIndex = currentActiveIndex;
+				// Reset notification flag for new task
+				const newTask = parsed.tasks[currentActiveIndex];
+				hasNotificationPlayed = (newTask?.targetDuration !== undefined)
+					? state.exerciseElapsed >= newTask.targetDuration
+					: false;
 				return;
 			}
 
@@ -94,14 +105,15 @@ export function renderStudyLog(ctx: StudyRendererContext): void {
 					activeTask.targetDuration
 				);
 
-				if (!hasAutoAdvanced && activeTask.targetDuration !== undefined) {
+				if (!hasNotificationPlayed && activeTask.targetDuration !== undefined) {
 					if (state.exerciseElapsed >= activeTask.targetDuration) {
-						hasAutoAdvanced = true;
+						hasNotificationPlayed = true;
 						playTimerCompleteNotification(
 							{ enableSound: enableTimerSound, enableNotification: enableNotification },
 							activeTask.name
 						);
-						callbacks.onTaskFinish(currentActiveIndex);
+						// NOTE: Removed auto-finish callback to allow overtime tracking.
+						// User must manually click finish.
 					}
 				}
 			}
