@@ -1,5 +1,5 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
-import { LifeLogSettings, SubjectPreset } from './types';
+import { LifeLogSettings, SubjectPreset, WorkoutTemplate, TimerStyle } from './types';
 import type LifeLogPlugin from './main';
 
 export const DEFAULT_SUBJECTS: SubjectPreset[] = [
@@ -8,6 +8,24 @@ export const DEFAULT_SUBJECTS: SubjectPreset[] = [
 	{ name: '프로그래밍', icon: '', color: '#50C878' },
 	{ name: '독서', icon: '', color: '#FFB347' },
 	{ name: '기타', icon: '', color: '#A0A0A0' },
+];
+
+export const DEFAULT_WORKOUT_TEMPLATES: WorkoutTemplate[] = [
+	{ name: '상체 운동', exercises: [
+		{ name: '푸시업', params: '횟수: [15]' },
+		{ name: '덤벨 로우', params: '무게: [10]kg | 횟수: [12]' },
+		{ name: '숄더 프레스', params: '무게: [8]kg | 횟수: [10]' }
+	]},
+	{ name: '하체 운동', exercises: [
+		{ name: '스쿼트', params: '무게: [40]kg | 횟수: [12]' },
+		{ name: '런지', params: '횟수: [10] /다리' },
+		{ name: '카프레이즈', params: '횟수: [20]' }
+	]},
+	{ name: 'HIIT', exercises: [
+		{ name: '버피', params: '시간: [30초]' },
+		{ name: '점핑잭', params: '시간: [30초]' },
+		{ name: '마운틴 클라이머', params: '시간: [30초]' }
+	]},
 ];
 
 export const DEFAULT_SETTINGS: LifeLogSettings = {
@@ -21,12 +39,19 @@ export const DEFAULT_SETTINGS: LifeLogSettings = {
 	pomodoroBreak: 5,
 	
 	defaultRestDuration: 60,
+	workoutTemplates: DEFAULT_WORKOUT_TEMPLATES,
 	
 	defaultTab: 'study',
 	showRibbonIcon: true,
 	
 	enableTimerSound: true,
-	enableNotifications: false,
+	enableNotifications: true,
+	
+	timerStyle: 'digital',
+	usePerTypeTimerStyle: false,
+	studyTimerStyle: 'pomodoro',
+	workTimerStyle: 'digital',
+	workoutTimerStyle: 'digital',
 };
 
 export class LifeLogSettingTab extends PluginSettingTab {
@@ -53,6 +78,7 @@ export class LifeLogSettingTab extends PluginSettingTab {
 		this.renderSaveSettings(containerEl);
 		this.renderStudySettings(containerEl);
 		this.renderWorkoutSettings(containerEl);
+		this.renderTimerStyleSettings(containerEl);
 		this.renderUISettings(containerEl);
 		this.renderNotificationSettings(containerEl);
 	}
@@ -209,7 +235,7 @@ export class LifeLogSettingTab extends PluginSettingTab {
 	}
 
 	private renderWorkoutSettings(containerEl: HTMLElement): void {
-		containerEl.createEl('h3', { text: '🏋️ 운동 기록 설정' });
+		containerEl.createEl('h3', { text: '운동 기록 설정' });
 
 		new Setting(containerEl)
 			.setName('기본 휴식 시간')
@@ -222,10 +248,199 @@ export class LifeLogSettingTab extends PluginSettingTab {
 					this.plugin.settings.defaultRestDuration = Math.max(10, Math.min(300, num));
 					await this.plugin.saveSettings();
 				}));
+
+		this.renderWorkoutTemplateManager(containerEl);
+	}
+
+	private renderWorkoutTemplateManager(containerEl: HTMLElement): void {
+		const templateContainer = containerEl.createDiv({ cls: 'template-manager' });
+		
+		new Setting(templateContainer)
+			.setName('운동 템플릿 관리')
+			.setDesc('빠른 템플릿에 표시되는 운동 세트를 관리합니다')
+			.addButton(button => button
+				.setButtonText('+ 템플릿 추가')
+				.onClick(async () => {
+					this.plugin.settings.workoutTemplates.push({
+						name: '새 템플릿',
+						exercises: [{ name: '운동명', params: '횟수: [10]' }]
+					});
+					await this.plugin.saveSettings();
+					this.display();
+				}));
+
+		const templateList = templateContainer.createDiv({ cls: 'template-list' });
+		
+		if (!this.plugin.settings.workoutTemplates) {
+			this.plugin.settings.workoutTemplates = [...DEFAULT_WORKOUT_TEMPLATES];
+		}
+
+		for (let i = 0; i < this.plugin.settings.workoutTemplates.length; i++) {
+			const template = this.plugin.settings.workoutTemplates[i];
+			if (!template) continue;
+
+			const templateItem = templateList.createDiv({ cls: 'template-item' });
+			
+			const headerRow = templateItem.createDiv({ cls: 'template-header-row' });
+			
+			const nameInput = headerRow.createEl('input', {
+				type: 'text',
+				value: template.name,
+				cls: 'template-name-input'
+			});
+			nameInput.addEventListener('change', async () => {
+				template.name = nameInput.value || '템플릿';
+				await this.plugin.saveSettings();
+			});
+
+			const deleteBtn = headerRow.createEl('button', {
+				text: '삭제',
+				cls: 'template-delete-btn'
+			});
+			deleteBtn.addEventListener('click', async () => {
+				this.plugin.settings.workoutTemplates.splice(i, 1);
+				await this.plugin.saveSettings();
+				this.display();
+			});
+
+			const exerciseList = templateItem.createDiv({ cls: 'template-exercise-list' });
+			
+			for (let j = 0; j < template.exercises.length; j++) {
+				const exercise = template.exercises[j];
+				if (!exercise) continue;
+
+				const exerciseRow = exerciseList.createDiv({ cls: 'template-exercise-row' });
+				
+				const exNameInput = exerciseRow.createEl('input', {
+					type: 'text',
+					value: exercise.name,
+					placeholder: '운동명',
+					cls: 'template-exercise-name'
+				});
+				exNameInput.addEventListener('change', async () => {
+					exercise.name = exNameInput.value || '운동';
+					await this.plugin.saveSettings();
+				});
+
+				const exParamsInput = exerciseRow.createEl('input', {
+					type: 'text',
+					value: exercise.params,
+					placeholder: '무게: [60]kg | 횟수: [10]',
+					cls: 'template-exercise-params'
+				});
+				exParamsInput.addEventListener('change', async () => {
+					exercise.params = exParamsInput.value || '';
+					await this.plugin.saveSettings();
+				});
+
+				const exDeleteBtn = exerciseRow.createEl('button', {
+					text: '×',
+					cls: 'template-exercise-delete'
+				});
+				exDeleteBtn.addEventListener('click', async () => {
+					template.exercises.splice(j, 1);
+					await this.plugin.saveSettings();
+					this.display();
+				});
+			}
+
+			const addExerciseBtn = templateItem.createEl('button', {
+				text: '+ 운동 추가',
+				cls: 'template-add-exercise'
+			});
+			addExerciseBtn.addEventListener('click', async () => {
+				template.exercises.push({ name: '운동명', params: '횟수: [10]' });
+				await this.plugin.saveSettings();
+				this.display();
+			});
+		}
+	}
+
+	private renderTimerStyleSettings(containerEl: HTMLElement): void {
+		containerEl.createEl('h3', { text: '타이머 스타일' });
+
+		const timerStyleOptions: { value: TimerStyle; label: string }[] = [
+			{ value: 'digital', label: '디지털 (00:00:00)' },
+			{ value: 'pomodoro', label: '뽀모도로 (25/5 사이클)' },
+			{ value: 'analog', label: '아날로그 (원형 시계)' },
+		];
+
+		new Setting(containerEl)
+			.setName('공통 타이머 스타일')
+			.setDesc('모든 기록 유형에 적용되는 기본 타이머 스타일')
+			.addDropdown(dropdown => {
+				for (const opt of timerStyleOptions) {
+					dropdown.addOption(opt.value, opt.label);
+				}
+				dropdown
+					.setValue(this.plugin.settings.timerStyle)
+					.onChange(async (value: TimerStyle) => {
+						this.plugin.settings.timerStyle = value;
+						await this.plugin.saveSettings();
+					});
+			});
+
+		new Setting(containerEl)
+			.setName('유형별 개별 설정')
+			.setDesc('학습/업무/운동 기록마다 다른 타이머 스타일 사용')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.usePerTypeTimerStyle)
+				.onChange(async (value) => {
+					this.plugin.settings.usePerTypeTimerStyle = value;
+					await this.plugin.saveSettings();
+					this.display();
+				}));
+
+		if (this.plugin.settings.usePerTypeTimerStyle) {
+			new Setting(containerEl)
+				.setName('학습 기록 타이머')
+				.setDesc('학습 기록에 사용할 타이머 스타일')
+				.addDropdown(dropdown => {
+					for (const opt of timerStyleOptions) {
+						dropdown.addOption(opt.value, opt.label);
+					}
+					dropdown
+						.setValue(this.plugin.settings.studyTimerStyle)
+						.onChange(async (value: TimerStyle) => {
+							this.plugin.settings.studyTimerStyle = value;
+							await this.plugin.saveSettings();
+						});
+				});
+
+			new Setting(containerEl)
+				.setName('업무 기록 타이머')
+				.setDesc('업무 기록에 사용할 타이머 스타일')
+				.addDropdown(dropdown => {
+					for (const opt of timerStyleOptions) {
+						dropdown.addOption(opt.value, opt.label);
+					}
+					dropdown
+						.setValue(this.plugin.settings.workTimerStyle)
+						.onChange(async (value: TimerStyle) => {
+							this.plugin.settings.workTimerStyle = value;
+							await this.plugin.saveSettings();
+						});
+				});
+
+			new Setting(containerEl)
+				.setName('운동 기록 타이머')
+				.setDesc('운동 기록에 사용할 타이머 스타일')
+				.addDropdown(dropdown => {
+					for (const opt of timerStyleOptions) {
+						dropdown.addOption(opt.value, opt.label);
+					}
+					dropdown
+						.setValue(this.plugin.settings.workoutTimerStyle)
+						.onChange(async (value: TimerStyle) => {
+							this.plugin.settings.workoutTimerStyle = value;
+							await this.plugin.saveSettings();
+						});
+				});
+		}
 	}
 
 	private renderUISettings(containerEl: HTMLElement): void {
-		containerEl.createEl('h3', { text: '🎨 UI 설정' });
+		containerEl.createEl('h3', { text: 'UI 설정' });
 
 		new Setting(containerEl)
 			.setName('기본 탭')

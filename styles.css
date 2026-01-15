@@ -681,6 +681,457 @@
 }
 
 /* ============================================
+   WORK LOG STYLES (v2.5)
+   ============================================ */
+
+.work-container {
+	padding: 12px;
+	border-radius: 8px;
+	background: var(--background-secondary);
+	font-family: var(--font-interface);
+	font-size: 0.85em;
+}
+
+.work-header {
+	margin-bottom: 12px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.work-header-top {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 8px;
+}
+
+.work-title {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 1.1em;
+	font-weight: 600;
+	color: var(--text-normal);
+}
+
+.work-icon {
+	font-size: 1.2em;
+}
+
+.work-title-text {
+	color: var(--text-normal);
+}
+
+.work-timer {
+	font-family: var(--font-monospace);
+	font-size: 1em;
+	color: var(--text-muted);
+}
+
+.work-timer-indicator {
+	margin-left: 4px;
+}
+
+.work-timer-indicator.count-up {
+	color: var(--color-green);
+}
+
+.work-timer-indicator.recorded {
+	color: var(--color-green);
+}
+
+.work-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-top: 8px;
+}
+
+.work-tag {
+	padding: 2px 8px;
+	border-radius: 10px;
+	background: var(--background-modifier-hover);
+	color: var(--text-muted);
+	font-size: 0.8em;
+}
+
+.work-tasks {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.work-task {
+	padding: 8px 12px;
+	border-radius: 4px;
+	background: var(--background-primary);
+	border-left: 3px solid var(--text-muted);
+}
+
+.work-task.priority-high {
+	border-left-color: #E74C3C;
+}
+
+.work-task.priority-medium {
+	border-left-color: #F39C12;
+}
+
+.work-task.priority-low {
+	border-left-color: #3498DB;
+}
+
+.work-task.active {
+	border: 1px solid var(--interactive-accent);
+	border-left: 3px solid var(--interactive-accent);
+	background: var(--background-primary-alt);
+}
+
+.work-task.active.priority-high {
+	border-left-color: #E74C3C;
+}
+
+.work-task.active.priority-medium {
+	border-left-color: #F39C12;
+}
+
+.work-task.active.priority-low {
+	border-left-color: #3498DB;
+}
+
+.work-task.state-completed {
+	border-left-color: var(--color-green);
+}
+
+.work-task.state-skipped {
+	opacity: 0.5;
+}
+
+.work-task.state-skipped .work-task-name {
+	text-decoration: line-through;
+}
+
+.work-task-main {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.work-task-icon {
+	font-size: 0.9em;
+	width: 16px;
+	text-align: center;
+	color: var(--text-muted);
+}
+
+.work-task.state-completed .work-task-icon {
+	color: var(--color-green);
+}
+
+.work-task.state-inProgress .work-task-icon {
+	color: var(--interactive-accent);
+}
+
+.work-task-priority {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+.work-task-name {
+	font-weight: 500;
+	color: var(--text-normal);
+	flex: 1;
+}
+
+.work-task-notes {
+	color: var(--text-muted);
+	font-size: 0.9em;
+	font-style: italic;
+}
+
+.work-task-timer-group {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 2px;
+	font-family: var(--font-monospace);
+	font-size: 0.85em;
+}
+
+.work-timer-expected {
+	color: var(--text-faint);
+}
+
+.work-timer-expected.target {
+	color: var(--text-muted);
+}
+
+.work-timer-actual {
+	color: var(--text-muted);
+}
+
+.work-task-timer-group.overtime .work-timer-actual {
+	color: var(--color-red);
+}
+
+.work-task-controls {
+	display: flex;
+	gap: 6px;
+	margin-top: 8px;
+	justify-content: center;
+}
+
+.work-controls {
+	margin-top: 12px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+.work-stats {
+	display: flex;
+	gap: 12px;
+	font-size: 0.9em;
+	color: var(--text-muted);
+}
+
+.work-stat {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.work-stat.high-priority {
+	color: var(--text-normal);
+}
+
+.priority-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+}
+
+.priority-dot.high {
+	background: #E74C3C;
+}
+
+.work-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 4px 12px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	background: var(--background-secondary);
+	color: var(--text-normal);
+	font-family: var(--font-interface);
+	font-size: 0.85em;
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+
+.work-btn:hover {
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+	border-color: var(--interactive-accent);
+}
+
+.work-btn-primary {
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+	border-color: var(--interactive-accent);
+}
+
+.work-btn-large {
+	padding: 8px 20px;
+	font-size: 0.95em;
+	font-weight: 500;
+}
+
+.work-btn-icon {
+	margin-right: 6px;
+}
+
+.work-completed-label {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	color: var(--color-green);
+	font-weight: 500;
+	font-size: 0.9em;
+}
+
+.work-empty-state {
+	padding: 40px 20px;
+	text-align: center;
+}
+
+.work-empty-message {
+	color: var(--text-muted);
+	font-size: 0.95em;
+}
+
+/* Work Log Modal Tab Styles */
+.work-log-tab .work-task-input-list {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.work-log-tab .work-task-input-row {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+}
+
+.work-log-tab .work-task-name-input {
+	flex: 1;
+	height: 40px;
+	padding: 0 14px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 6px;
+	background: var(--background-secondary);
+	font-size: 0.95em;
+	color: var(--text-normal);
+	box-sizing: border-box;
+}
+
+.work-log-tab .work-task-name-input:focus {
+	outline: none;
+	border-color: var(--interactive-accent);
+}
+
+.work-log-tab .work-task-priority-select {
+	width: 80px;
+	height: 40px;
+	padding: 0 8px;
+	border: 2px solid var(--background-modifier-border);
+	border-radius: 6px;
+	background: var(--background-secondary);
+	font-size: 0.9em;
+	color: var(--text-normal);
+	cursor: pointer;
+}
+
+.work-log-tab .work-task-duration-input {
+	width: 80px;
+	height: 40px;
+	padding: 0 10px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 6px;
+	background: var(--background-secondary);
+	font-size: 0.95em;
+	color: var(--text-normal);
+	text-align: center;
+}
+
+.work-log-tab .work-task-duration-input:focus {
+	outline: none;
+	border-color: var(--interactive-accent);
+}
+
+.work-log-tab .work-task-remove-btn {
+	width: 40px;
+	height: 40px;
+	padding: 0;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 6px;
+	background: var(--background-secondary);
+	color: var(--text-muted);
+	font-size: 1.2em;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.work-log-tab .work-task-remove-btn:hover {
+	color: #fff;
+	background: #e74c3c;
+	border-color: #e74c3c;
+}
+
+.work-log-tab .work-title-input {
+	width: 100%;
+	height: 40px;
+	padding: 0 14px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 6px;
+	background: var(--background-secondary);
+	font-size: 0.95em;
+	color: var(--text-normal);
+	box-sizing: border-box;
+}
+
+.work-log-tab .work-title-input:focus {
+	outline: none;
+	border-color: var(--interactive-accent);
+}
+
+/* Mobile Responsive - Work Log */
+@media (max-width: 768px) {
+	.work-container {
+		padding: 10px;
+	}
+
+	.work-header-top {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+	}
+
+	.work-task {
+		padding: 8px;
+	}
+
+	.work-task-main {
+		flex-wrap: wrap;
+	}
+
+	.work-task-timer-group {
+		flex-direction: row;
+		gap: 8px;
+		width: 100%;
+		margin-top: 4px;
+	}
+
+	.work-task-controls {
+		gap: 4px;
+	}
+
+	.work-btn {
+		padding: 6px 10px;
+		font-size: 0.8em;
+		min-height: 36px;
+	}
+
+	.work-controls {
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	.work-stats {
+		justify-content: center;
+	}
+
+	.work-log-tab .work-task-input-row {
+		flex-wrap: wrap;
+	}
+
+	.work-log-tab .work-task-name-input {
+		flex-basis: 100%;
+	}
+
+	.work-log-tab .work-task-priority-select,
+	.work-log-tab .work-task-duration-input {
+		flex: 1;
+	}
+}
+
+/* ============================================
    MODAL STYLES - CLEAN MODERN
    ============================================ */
 
@@ -1167,6 +1618,127 @@
 .subject-delete-btn:hover {
 	color: var(--color-red);
 	background: var(--background-modifier-hover);
+}
+
+.template-manager {
+	margin-top: 16px;
+}
+
+.template-list {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	margin-top: 12px;
+}
+
+.template-item {
+	padding: 12px;
+	background: var(--background-primary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 6px;
+}
+
+.template-header-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 10px;
+}
+
+.template-name-input {
+	flex: 1;
+	height: 32px;
+	padding: 0 10px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	background: var(--background-secondary);
+	font-size: 0.95em;
+	font-weight: 500;
+	color: var(--text-normal);
+}
+
+.template-delete-btn {
+	padding: 6px 12px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	background: var(--background-secondary);
+	color: var(--text-muted);
+	font-size: 0.85em;
+	cursor: pointer;
+}
+
+.template-delete-btn:hover {
+	color: #fff;
+	background: #e74c3c;
+	border-color: #e74c3c;
+}
+
+.template-exercise-list {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.template-exercise-row {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.template-exercise-name {
+	flex: 1;
+	height: 32px;
+	padding: 0 10px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	background: var(--background-secondary);
+	font-size: 0.9em;
+	color: var(--text-normal);
+}
+
+.template-exercise-params {
+	flex: 2;
+	height: 32px;
+	padding: 0 10px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	background: var(--background-secondary);
+	font-size: 0.9em;
+	color: var(--text-normal);
+}
+
+.template-exercise-delete {
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	background: var(--background-secondary);
+	color: var(--text-muted);
+	font-size: 1.1em;
+	cursor: pointer;
+}
+
+.template-exercise-delete:hover {
+	color: #fff;
+	background: #e74c3c;
+	border-color: #e74c3c;
+}
+
+.template-add-exercise {
+	margin-top: 8px;
+	padding: 6px 12px;
+	border: 1px dashed var(--background-modifier-border);
+	border-radius: 4px;
+	background: transparent;
+	color: var(--text-muted);
+	font-size: 0.85em;
+	cursor: pointer;
+}
+
+.template-add-exercise:hover {
+	border-color: var(--interactive-accent);
+	color: var(--interactive-accent);
 }
 
 /* ============================================

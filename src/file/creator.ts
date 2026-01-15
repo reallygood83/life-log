@@ -1,7 +1,7 @@
 import { App, TFile, TFolder, normalizePath } from 'obsidian';
 import { LifeLogSettings } from '../types';
 
-export type LogType = 'study' | 'workout';
+export type LogType = 'study' | 'work' | 'workout';
 
 export class FileCreator {
 	constructor(
@@ -74,7 +74,7 @@ export class FileCreator {
 		type: LogType,
 		codeBlockContent: string
 	): Promise<TFile> {
-		const blockType = type === 'study' ? 'study-log' : 'life-log';
+		const blockType = this.getBlockType(type);
 		const newSection = this.buildNewSection(type, codeBlockContent, blockType);
 
 		await this.app.vault.process(file, (content) => {
@@ -84,13 +84,21 @@ export class FileCreator {
 		return file;
 	}
 
+	private getBlockType(type: LogType): string {
+		switch (type) {
+			case 'study': return 'study-log';
+			case 'work': return 'work-log';
+			case 'workout': return 'life-log';
+		}
+	}
+
 	private async createNewFile(
 		filePath: string,
 		type: LogType,
 		date: Date,
 		codeBlockContent: string
 	): Promise<TFile> {
-		const blockType = type === 'study' ? 'study-log' : 'life-log';
+		const blockType = this.getBlockType(type);
 		const frontmatter = this.buildFrontmatter(type, date);
 		const heading = this.buildHeading(type, date);
 		const section = this.buildNewSection(type, codeBlockContent, blockType);
@@ -115,19 +123,19 @@ export class FileCreator {
 
 	private buildHeading(type: LogType, date: Date): string {
 		const dateStr = this.formatDate(date);
-		const emoji = type === 'study' ? '📚' : '🏋️';
-		const label = type === 'study' ? '학습' : '운동';
-		return `# ${emoji} ${dateStr} ${label} 기록`;
+		const emojiMap: Record<LogType, string> = { study: '📚', work: '💼', workout: '🏋️' };
+		const labelMap: Record<LogType, string> = { study: '학습', work: '업무', workout: '운동' };
+		return `# ${emojiMap[type]} ${dateStr} ${labelMap[type]} 기록`;
 	}
 
 	private buildNewSection(type: LogType, codeBlockContent: string, blockType: string): string {
 		const now = new Date();
 		const hours = now.getHours();
 		const period = hours < 12 ? '오전' : (hours < 18 ? '오후' : '저녁');
-		const label = type === 'study' ? '학습' : '운동';
+		const labelMap: Record<LogType, string> = { study: '학습', work: '업무', workout: '운동' };
 
 		return [
-			`## ${period} ${label} 세션`,
+			`## ${period} ${labelMap[type]} 세션`,
 			'',
 			`\`\`\`${blockType}`,
 			codeBlockContent,

@@ -2,12 +2,13 @@ import { App, Modal, TFile } from 'obsidian';
 import { LifeLogSettings } from '../types';
 import { FileCreator } from '../file/creator';
 import { StudyLogTab } from './StudyLogTab';
+import { WorkLogTab } from './WorkLogTab';
 import { WorkoutLogTab } from './WorkoutLogTab';
 
 export class QuickLogModal extends Modal {
 	private settings: LifeLogSettings;
 	private fileCreator: FileCreator;
-	private activeTab: 'study' | 'workout';
+	private activeTab: 'study' | 'work' | 'workout';
 	private tabContentEl: HTMLElement | null = null;
 
 	constructor(app: App, settings: LifeLogSettings, fileCreator: FileCreator) {
@@ -45,6 +46,16 @@ export class QuickLogModal extends Modal {
 			this.renderTabContent(container);
 		});
 
+		const workTab = tabsEl.createEl('button', {
+			cls: `modal-tab ${this.activeTab === 'work' ? 'active' : ''}`,
+			text: '업무 기록'
+		});
+		workTab.addEventListener('click', () => {
+			this.activeTab = 'work';
+			this.updateActiveTab(tabsEl);
+			this.renderTabContent(container);
+		});
+
 		const workoutTab = tabsEl.createEl('button', {
 			cls: `modal-tab ${this.activeTab === 'workout' ? 'active' : ''}`,
 			text: '운동 기록'
@@ -57,9 +68,9 @@ export class QuickLogModal extends Modal {
 	}
 
 	private updateActiveTab(tabsEl: HTMLElement): void {
+		const tabs = ['study', 'work', 'workout'];
 		tabsEl.querySelectorAll('.modal-tab').forEach((tab, idx) => {
-			if ((idx === 0 && this.activeTab === 'study') ||
-				(idx === 1 && this.activeTab === 'workout')) {
+			if (tabs[idx] === this.activeTab) {
 				tab.classList.add('active');
 			} else {
 				tab.classList.remove('active');
@@ -87,6 +98,14 @@ export class QuickLogModal extends Modal {
 				onCreated
 			});
 			studyTab.render();
+		} else if (this.activeTab === 'work') {
+			const workTab = new WorkLogTab(this.tabContentEl, {
+				app: this.app,
+				settings: this.settings,
+				fileCreator: this.fileCreator,
+				onCreated
+			});
+			workTab.render();
 		} else {
 			const workoutTab = new WorkoutLogTab(this.tabContentEl, {
 				app: this.app,

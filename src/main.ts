@@ -5,12 +5,15 @@ import { renderWorkout } from './renderer';
 import { TimerManager } from './timer/manager';
 import { FileUpdater } from './file/updater';
 import { FileCreator } from './file/creator';
-import { ParsedWorkout, WorkoutCallbacks, SectionInfo, LifeLogSettings, ParsedStudyLog, StudyLogCallbacks } from './types';
+import { ParsedWorkout, WorkoutCallbacks, SectionInfo, LifeLogSettings, ParsedStudyLog, StudyLogCallbacks, ParsedWorkLog, WorkLogCallbacks } from './types';
 import { formatDurationHuman } from './parser/exercise';
 import { parseStudyLog } from './parser/study';
 import { serializeStudyLog, updateStudyTaskState, setStudyTaskDuration, setStudyScores } from './study-serializer';
 import { renderStudyLog } from './renderer/study';
-import { DEFAULT_SETTINGS, DEFAULT_SUBJECTS, LifeLogSettingTab } from './settings';
+import { parseWorkLog } from './parser/work';
+import { serializeWorkLog, updateWorkTaskState, setWorkTaskActualDuration } from './work-serializer';
+import { renderWorkLog } from './renderer/work';
+import { DEFAULT_SETTINGS, DEFAULT_SUBJECTS, DEFAULT_WORKOUT_TEMPLATES, LifeLogSettingTab } from './settings';
 import { QuickLogModal } from './modal/QuickLogModal';
 import { SelfEvalModal } from './modal/SelfEvalModal';
 
@@ -39,6 +42,10 @@ export default class LifeLogPlugin extends Plugin {
 			this.processStudyBlock(source, el, ctx);
 		});
 
+		this.registerMarkdownCodeBlockProcessor('work-log', (source, el, ctx) => {
+			this.processWorkBlock(source, el, ctx);
+		});
+
 		this.addCommand({
 			id: 'open-quick-log',
 			name: '새 기록',
@@ -56,6 +63,17 @@ export default class LifeLogPlugin extends Plugin {
 			callback: () => {
 				if (this.fileCreator) {
 					const modal = new QuickLogModal(this.app, { ...this.settings, defaultTab: 'study' }, this.fileCreator);
+					modal.open();
+				}
+			}
+		});
+
+		this.addCommand({
+			id: 'open-work-log',
+			name: '새 업무 기록',
+			callback: () => {
+				if (this.fileCreator) {
+					const modal = new QuickLogModal(this.app, { ...this.settings, defaultTab: 'work' }, this.fileCreator);
 					modal.open();
 				}
 			}
@@ -89,6 +107,10 @@ export default class LifeLogPlugin extends Plugin {
 		
 		if (!this.settings.subjects || this.settings.subjects.length === 0) {
 			this.settings.subjects = [...DEFAULT_SUBJECTS];
+		}
+		
+		if (!this.settings.workoutTemplates || this.settings.workoutTemplates.length === 0) {
+			this.settings.workoutTemplates = [...DEFAULT_WORKOUT_TEMPLATES];
 		}
 	}
 
@@ -176,6 +198,167 @@ export default class LifeLogPlugin extends Plugin {
 			enableTimerSound: this.settings.enableTimerSound,
 			enableNotification: this.settings.enableNotifications
 		});
+	}
+
+	private processWorkBlock(
+		source: string,
+		el: HTMLElement,
+		ctx: MarkdownPostProcessorContext
+	): void {
+		const parsed = parseWorkLog(source);
+		const sectionInfo = ctx.getSectionInfo(el) as SectionInfo | null;
+		const workId = `work:${ctx.sourcePath}:${sectionInfo?.lineStart ?? 0}`;
+
+		const isTimerRunning = this.timerManager.isTimerRunning(workId);
+		if (isTimerRunning && parsed.metadata.state !== 'started') {
+			this.timerManager.stopWorkoutTimer(workId);
+		} else if (isTimerRunning && parsed.metadata.state === 'started') {
+			const parsedActiveIndex = parsed.tasks.findIndex(t => t.state === 'inProgress');
+			const timerActiveIndex = this.timerManager.getActiveExerciseIndex(workId);
+			if (parsedActiveIndex >= 0 && parsedActiveIndex !== timerActiveIndex) {
+				this.timerManager.setActiveExerciseIndex(workId, parsedActiveIndex);
+			}
+		}
+
+		const callbacks = this.createWorkCallbacks(ctx, sectionInfo, parsed, workId);
+
+		renderWorkLog({
+			el,
+			parsed,
+			callbacks,
+			workId,
+			timerManager: this.timerManager,
+			enableTimerSound: this.settings.enableTimerSound,
+			enableNotification: this.settings.enableNotifications
+		});
+	}
+
+	private createWorkCallbacks(
+		ctx: MarkdownPostProcessorContext,
+		sectionInfo: SectionInfo | null,
+		parsed: ParsedWorkLog,
+		workId: string
+	): WorkLogCallbacks {
+		let currentParsed = parsed;
+		let hasPendingChanges = false;
+
+		const updateFile = async (newParsed: ParsedWorkLog): Promise<void> => {
+			currentParsed = newParsed;
+			hasPendingChanges = false;
+			const newContent = serializeWorkLog(newParsed);
+			const expectedTitle = currentParsed.metadata.title;
+			await this.fileUpdater?.updateCodeBlock(ctx.sourcePath, sectionInfo, newContent, expectedTitle);
+		};
+
+		const flushChanges = async (): Promise<void> => {
+			if (hasPendingChanges) {
+				await updateFile(currentParsed);
+			}
+		};
+
+		return {
+			onStartWork: async (): Promise<void> => {
+				hasPendingChanges = false;
+				currentParsed.metadata.state = 'started';
+				currentParsed.metadata.startDate = this.formatStartDate(new Date());
+
+				const firstPending = currentParsed.tasks.findIndex(t => t.state === 'pending');
+				if (firstPending >= 0) {
+					currentParsed = updateWorkTaskState(currentParsed, firstPending, 'inProgress');
+				}
+
+				await updateFile(currentParsed);
+				this.timerManager.startWorkoutTimer(workId, firstPending >= 0 ? firstPending : 0);
+			},
+
+			onFinishWork: async (): Promise<void> => {
+				const timerState = this.timerManager.getTimerState(workId);
+				if (timerState) {
+					currentParsed.metadata.totalDuration = formatDurationHuman(timerState.workoutElapsed);
+				}
+				currentParsed.metadata.endDate = this.formatStartDate(new Date());
+				currentParsed.metadata.state = 'completed';
+
+				for (let i = 0; i < currentParsed.tasks.length; i++) {
+					const task = currentParsed.tasks[i];
+					if (task && task.state === 'inProgress') {
+						const ts = this.timerManager.getTimerState(workId);
+						if (ts) {
+							currentParsed = setWorkTaskActualDuration(currentParsed, i, formatDurationHuman(ts.exerciseElapsed));
+						}
+						currentParsed = updateWorkTaskState(currentParsed, i, 'completed');
+					}
+				}
+
+				await updateFile(currentParsed);
+				this.timerManager.stopWorkoutTimer(workId);
+			},
+
+			onTaskFinish: async (taskIndex: number): Promise<void> => {
+				hasPendingChanges = false;
+				const task = currentParsed.tasks[taskIndex];
+				if (!task) return;
+
+				const timerState = this.timerManager.getTimerState(workId);
+				if (timerState) {
+					currentParsed = setWorkTaskActualDuration(
+						currentParsed,
+						taskIndex,
+						formatDurationHuman(timerState.exerciseElapsed)
+					);
+				}
+
+				currentParsed = updateWorkTaskState(currentParsed, taskIndex, 'completed');
+
+				const nextPending = currentParsed.tasks.findIndex(
+					(t, i) => i > taskIndex && t.state === 'pending'
+				);
+
+				if (nextPending >= 0) {
+					currentParsed = updateWorkTaskState(currentParsed, nextPending, 'inProgress');
+					this.timerManager.advanceExercise(workId, nextPending);
+					await updateFile(currentParsed);
+				} else {
+					await updateFile(currentParsed);
+				}
+			},
+
+			onTaskSkip: async (taskIndex: number): Promise<void> => {
+				hasPendingChanges = false;
+				const timerState = this.timerManager.getTimerState(workId);
+				if (timerState && timerState.exerciseElapsed > 0) {
+					currentParsed = setWorkTaskActualDuration(
+						currentParsed,
+						taskIndex,
+						formatDurationHuman(timerState.exerciseElapsed)
+					);
+				}
+
+				currentParsed = updateWorkTaskState(currentParsed, taskIndex, 'skipped');
+
+				const nextPending = currentParsed.tasks.findIndex(
+					(t, i) => i > taskIndex && t.state === 'pending'
+				);
+
+				if (nextPending >= 0) {
+					currentParsed = updateWorkTaskState(currentParsed, nextPending, 'inProgress');
+					this.timerManager.advanceExercise(workId, nextPending);
+					await updateFile(currentParsed);
+				} else {
+					await updateFile(currentParsed);
+				}
+			},
+
+			onPauseTask: (): void => {
+				this.timerManager.pauseExercise(workId);
+			},
+
+			onResumeTask: (): void => {
+				this.timerManager.resumeExercise(workId);
+			},
+
+			onFlushChanges: flushChanges,
+		};
 	}
 
 	private createWorkoutCallbacks(

@@ -75,7 +75,7 @@ export class WorkoutLogTab {
 
 		const paramsInput = row.createEl('input', {
 			type: 'text',
-			placeholder: '파라미터 (예: Weight: [60] kg | Reps: [10])',
+			placeholder: '무게: [60]kg | 횟수: [10]',
 			cls: 'exercise-params-input'
 		});
 
@@ -93,23 +93,27 @@ export class WorkoutLogTab {
 
 		const templateGrid = section.createDiv({ cls: 'template-grid' });
 
-		const templates = [
+		const defaultTemplates = [
 			{ name: '상체 운동', exercises: [
-				{ name: '푸시업', params: 'Reps: [15]' },
-				{ name: '덤벨 로우', params: 'Weight: [10] kg | Reps: [12]' },
-				{ name: '숄더 프레스', params: 'Weight: [8] kg | Reps: [10]' }
+				{ name: '푸시업', params: '횟수: [15]' },
+				{ name: '덤벨 로우', params: '무게: [10]kg | 횟수: [12]' },
+				{ name: '숄더 프레스', params: '무게: [8]kg | 횟수: [10]' }
 			]},
 			{ name: '하체 운동', exercises: [
-				{ name: '스쿼트', params: 'Weight: [40] kg | Reps: [12]' },
-				{ name: '런지', params: 'Reps: [10] /leg' },
-				{ name: '카프레이즈', params: 'Reps: [20]' }
+				{ name: '스쿼트', params: '무게: [40]kg | 횟수: [12]' },
+				{ name: '런지', params: '횟수: [10] /다리' },
+				{ name: '카프레이즈', params: '횟수: [20]' }
 			]},
 			{ name: 'HIIT', exercises: [
-				{ name: '버피', params: 'Duration: [30s]' },
-				{ name: '점핑잭', params: 'Duration: [30s]' },
-				{ name: '마운틴 클라이머', params: 'Duration: [30s]' }
+				{ name: '버피', params: '시간: [30초]' },
+				{ name: '점핑잭', params: '시간: [30초]' },
+				{ name: '마운틴 클라이머', params: '시간: [30초]' }
 			]},
 		];
+		
+		const templates = this.ctx.settings.workoutTemplates?.length > 0 
+			? this.ctx.settings.workoutTemplates 
+			: defaultTemplates;
 
 		for (const template of templates) {
 			const btn = templateGrid.createEl('button', { cls: 'template-btn' });

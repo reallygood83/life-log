@@ -175,8 +175,73 @@ export interface StudyRenderContext {
 }
 
 // ============================================
+// WORK LOG TYPES (new in v2.5)
+// ============================================
+
+export type WorkState = LogState;
+
+export type WorkTaskState = 'pending' | 'inProgress' | 'completed' | 'skipped';
+
+export type WorkPriority = 'high' | 'medium' | 'low';
+
+export interface WorkMetadata {
+	title: string;
+	state: WorkState;
+	startDate?: string;
+	endDate?: string;
+	totalDuration?: string;
+	tags?: string[];
+}
+
+export interface WorkTask {
+	state: WorkTaskState;
+	name: string;
+	priority: WorkPriority;
+	expectedDuration?: number;    // Expected duration in seconds
+	actualDuration?: string;      // Recorded actual duration
+	notes?: string;
+	lineIndex: number;
+}
+
+export interface ParsedWorkLog {
+	metadata: WorkMetadata;
+	tasks: WorkTask[];
+	rawLines: string[];
+	metadataEndIndex: number;
+}
+
+export interface WorkLogCallbacks {
+	onStartWork: () => Promise<void>;
+	onFinishWork: () => Promise<void>;
+	onTaskFinish: (taskIndex: number) => Promise<void>;
+	onTaskSkip: (taskIndex: number) => Promise<void>;
+	onPauseTask: () => void;
+	onResumeTask: () => void;
+	onFlushChanges: () => Promise<void>;
+}
+
+export interface WorkRenderContext {
+	el: HTMLElement;
+	parsed: ParsedWorkLog;
+	callbacks: WorkLogCallbacks;
+	workId: string;
+	timerState?: TimerState;
+}
+
+// ============================================
+// TIMER STYLE TYPES (new in v2.5)
+// ============================================
+
+export type TimerStyle = 'digital' | 'pomodoro' | 'analog';
+
+// ============================================
 // PLUGIN SETTINGS
 // ============================================
+
+export interface WorkoutTemplate {
+	name: string;
+	exercises: { name: string; params: string }[];
+}
 
 export interface LifeLogSettings {
 	logFolder: string;
@@ -189,10 +254,18 @@ export interface LifeLogSettings {
 	pomodoroBreak: number;
 	
 	defaultRestDuration: number;
+	workoutTemplates: WorkoutTemplate[];
 	
-	defaultTab: 'study' | 'workout';
+	defaultTab: 'study' | 'work' | 'workout';
 	showRibbonIcon: boolean;
 	
 	enableTimerSound: boolean;
 	enableNotifications: boolean;
+	
+	// Timer style settings (new in v2.5)
+	timerStyle: TimerStyle;
+	usePerTypeTimerStyle: boolean;
+	studyTimerStyle: TimerStyle;
+	workTimerStyle: TimerStyle;
+	workoutTimerStyle: TimerStyle;
 }
