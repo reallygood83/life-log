@@ -681,93 +681,169 @@
 }
 
 /* ============================================
-   MODAL STYLES
+   MODAL STYLES - NEO-BRUTALISM
    ============================================ */
+
+/* Neo-Brutalism CSS Variables */
+.quick-log-modal,
+.self-eval-modal {
+	--neo-border: 3px solid var(--text-normal);
+	--neo-shadow: 4px 4px 0px var(--text-normal);
+	--neo-shadow-hover: 6px 6px 0px var(--text-normal);
+	--neo-shadow-active: 2px 2px 0px var(--text-normal);
+	--neo-radius: 12px;
+	--neo-yellow: #FFE566;
+	--neo-pink: #FF8FAB;
+	--neo-mint: #98F5E1;
+	--neo-lavender: #E0BBFF;
+	--neo-peach: #FFCBA4;
+	--neo-sky: #87CEEB;
+}
+
+/* Dark theme adjustments */
+.theme-dark .quick-log-modal,
+.theme-dark .self-eval-modal {
+	--neo-border: 3px solid var(--text-muted);
+	--neo-shadow: 4px 4px 0px var(--text-muted);
+	--neo-shadow-hover: 6px 6px 0px var(--text-muted);
+	--neo-shadow-active: 2px 2px 0px var(--text-muted);
+}
 
 .quick-log-modal {
 	padding: 0;
+	border: var(--neo-border);
+	border-radius: var(--neo-radius);
+	box-shadow: var(--neo-shadow);
+	overflow: hidden;
 }
 
 .quick-log-modal .modal-header {
-	padding: 16px 20px;
-	border-bottom: 1px solid var(--background-modifier-border);
+	padding: 20px 24px;
+	background: var(--neo-yellow);
+	border-bottom: var(--neo-border);
+}
+
+.theme-dark .quick-log-modal .modal-header {
+	background: var(--background-secondary-alt);
 }
 
 .quick-log-modal .modal-header h2 {
 	margin: 0;
-	font-size: 1.2em;
+	font-size: 1.4em;
+	font-weight: 800;
+	color: var(--text-normal);
+	letter-spacing: -0.02em;
 }
 
 .modal-tabs {
 	display: flex;
-	border-bottom: 1px solid var(--background-modifier-border);
+	border-bottom: var(--neo-border);
+	background: var(--background-primary);
 }
 
 .modal-tab {
 	flex: 1;
-	padding: 12px 16px;
+	padding: 14px 20px;
 	background: transparent;
 	border: none;
-	border-bottom: 2px solid transparent;
+	border-right: var(--neo-border);
 	color: var(--text-muted);
-	font-size: 0.95em;
+	font-size: 1em;
+	font-weight: 700;
 	cursor: pointer;
-	transition: all 0.15s ease;
+	transition: all 0.1s ease;
+}
+
+.modal-tab:last-child {
+	border-right: none;
 }
 
 .modal-tab:hover {
 	color: var(--text-normal);
+	background: var(--neo-mint);
+}
+
+.theme-dark .modal-tab:hover {
 	background: var(--background-modifier-hover);
 }
 
 .modal-tab.active {
-	color: var(--interactive-accent);
-	border-bottom-color: var(--interactive-accent);
+	color: var(--text-normal);
+	background: var(--neo-sky);
+	border-bottom: none;
+}
+
+.theme-dark .modal-tab.active {
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
 }
 
 .modal-tab-content {
-	padding: 20px;
+	padding: 24px;
 	max-height: 60vh;
 	overflow-y: auto;
+	background: var(--background-primary);
 }
 
 .tab-section {
-	margin-bottom: 20px;
+	margin-bottom: 24px;
 }
 
 .tab-label {
 	display: block;
-	margin-bottom: 8px;
-	font-weight: 500;
+	margin-bottom: 12px;
+	font-weight: 700;
+	font-size: 1.05em;
 	color: var(--text-normal);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
 }
 
 .subject-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-	gap: 8px;
+	grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+	gap: 12px;
 }
 
 .subject-btn {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 4px;
-	padding: 12px 8px;
-	border: 1px solid var(--background-modifier-border);
-	border-radius: 8px;
-	background: var(--background-primary);
+	justify-content: center;
+	gap: 6px;
+	padding: 16px 12px;
+	border: var(--neo-border);
+	border-radius: var(--neo-radius);
+	background: var(--background-secondary);
+	box-shadow: var(--neo-shadow);
 	cursor: pointer;
-	transition: all 0.15s ease;
+	transition: all 0.1s ease;
+	font-weight: 600;
 }
 
 .subject-btn:hover {
-	border-color: var(--interactive-accent);
+	transform: translate(-2px, -2px);
+	box-shadow: var(--neo-shadow-hover);
+	background: var(--neo-lavender);
+}
+
+.theme-dark .subject-btn:hover {
 	background: var(--background-modifier-hover);
 }
 
+.subject-btn:active {
+	transform: translate(2px, 2px);
+	box-shadow: var(--neo-shadow-active);
+}
+
 .subject-btn.selected {
-	border-color: var(--interactive-accent);
+	background: var(--neo-pink);
+	color: var(--text-normal);
+	transform: translate(2px, 2px);
+	box-shadow: var(--neo-shadow-active);
+}
+
+.theme-dark .subject-btn.selected {
 	background: var(--interactive-accent);
 	color: var(--text-on-accent);
 }
@@ -775,208 +851,363 @@
 .subject-btn-add {
 	border-style: dashed;
 	color: var(--text-muted);
+	background: transparent;
+}
+
+.subject-btn-add:hover {
+	background: var(--background-modifier-hover);
+	color: var(--text-normal);
 }
 
 .custom-subject-input {
-	margin-top: 10px;
+	margin-top: 12px;
 }
 
 .custom-subject-input input {
 	width: 100%;
-	padding: 8px 12px;
-	border: 1px solid var(--background-modifier-border);
-	border-radius: 4px;
+	padding: 12px 16px;
+	border: var(--neo-border);
+	border-radius: var(--neo-radius);
 	background: var(--background-primary);
+	box-shadow: var(--neo-shadow);
+	font-size: 1em;
+	font-weight: 500;
+	box-sizing: border-box;
+}
+
+.custom-subject-input input:focus {
+	outline: none;
+	background: var(--neo-yellow);
+}
+
+.theme-dark .custom-subject-input input:focus {
+	background: var(--background-secondary-alt);
 }
 
 .task-input-list,
 .exercise-input-list {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
+	gap: 12px;
 }
 
 .task-input-row,
 .exercise-input-row {
 	display: flex;
-	gap: 8px;
-	align-items: center;
+	gap: 12px;
+	align-items: stretch;
 }
 
 .task-name-input,
 .exercise-name-input {
 	flex: 2;
-	padding: 8px 12px;
-	border: 1px solid var(--background-modifier-border);
-	border-radius: 4px;
+	padding: 12px 16px;
+	border: var(--neo-border);
+	border-radius: var(--neo-radius);
 	background: var(--background-primary);
+	box-shadow: var(--neo-shadow);
+	font-size: 1em;
+	font-weight: 500;
+	min-height: 48px;
+	box-sizing: border-box;
+}
+
+.task-name-input:focus,
+.exercise-name-input:focus {
+	outline: none;
+	background: var(--neo-mint);
+}
+
+.theme-dark .task-name-input:focus,
+.theme-dark .exercise-name-input:focus {
+	background: var(--background-secondary-alt);
 }
 
 .task-duration-input,
 .exercise-params-input {
 	flex: 1;
-	padding: 8px 12px;
-	border: 1px solid var(--background-modifier-border);
-	border-radius: 4px;
+	padding: 12px 16px;
+	border: var(--neo-border);
+	border-radius: var(--neo-radius);
 	background: var(--background-primary);
+	box-shadow: var(--neo-shadow);
+	font-size: 1em;
+	font-weight: 500;
+	min-height: 48px;
+	box-sizing: border-box;
+	text-align: center;
+}
+
+.task-duration-input:focus,
+.exercise-params-input:focus {
+	outline: none;
+	background: var(--neo-peach);
+}
+
+.theme-dark .task-duration-input:focus,
+.theme-dark .exercise-params-input:focus {
+	background: var(--background-secondary-alt);
 }
 
 .task-remove-btn,
 .exercise-remove-btn {
-	width: 32px;
-	height: 32px;
+	width: 48px;
+	height: 48px;
 	padding: 0;
-	border: none;
-	border-radius: 4px;
-	background: transparent;
+	border: var(--neo-border);
+	border-radius: var(--neo-radius);
+	background: var(--background-secondary);
+	box-shadow: var(--neo-shadow);
 	color: var(--text-muted);
-	font-size: 1.2em;
+	font-size: 1.4em;
 	cursor: pointer;
+	transition: all 0.1s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .task-remove-btn:hover,
 .exercise-remove-btn:hover {
-	color: var(--color-red);
-	background: var(--background-modifier-hover);
+	color: #fff;
+	background: #FF6B6B;
+	transform: translate(-2px, -2px);
+	box-shadow: var(--neo-shadow-hover);
+}
+
+.task-remove-btn:active,
+.exercise-remove-btn:active {
+	transform: translate(2px, 2px);
+	box-shadow: var(--neo-shadow-active);
 }
 
 .add-task-btn,
 .add-exercise-btn {
-	padding: 8px 16px;
-	border: 1px dashed var(--background-modifier-border);
-	border-radius: 4px;
+	padding: 14px 20px;
+	border: var(--neo-border);
+	border-style: dashed;
+	border-radius: var(--neo-radius);
 	background: transparent;
 	color: var(--text-muted);
+	font-size: 1em;
+	font-weight: 700;
 	cursor: pointer;
-	transition: all 0.15s ease;
+	transition: all 0.1s ease;
 }
 
 .add-task-btn:hover,
 .add-exercise-btn:hover {
-	border-color: var(--interactive-accent);
-	color: var(--interactive-accent);
+	border-style: solid;
+	background: var(--neo-lavender);
+	color: var(--text-normal);
+	box-shadow: var(--neo-shadow);
+}
+
+.theme-dark .add-task-btn:hover,
+.theme-dark .add-exercise-btn:hover {
+	background: var(--background-modifier-hover);
 }
 
 .template-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-	gap: 8px;
+	grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+	gap: 12px;
 }
 
 .template-btn {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 4px;
-	padding: 12px 8px;
-	border: 1px solid var(--background-modifier-border);
-	border-radius: 8px;
-	background: var(--background-primary);
+	justify-content: center;
+	gap: 6px;
+	padding: 16px 12px;
+	border: var(--neo-border);
+	border-radius: var(--neo-radius);
+	background: var(--background-secondary);
+	box-shadow: var(--neo-shadow);
 	cursor: pointer;
-	transition: all 0.15s ease;
+	transition: all 0.1s ease;
+	font-weight: 600;
 }
 
 .template-btn:hover {
-	border-color: var(--interactive-accent);
+	transform: translate(-2px, -2px);
+	box-shadow: var(--neo-shadow-hover);
+	background: var(--neo-peach);
+}
+
+.theme-dark .template-btn:hover {
 	background: var(--background-modifier-hover);
+}
+
+.template-btn:active {
+	transform: translate(2px, 2px);
+	box-shadow: var(--neo-shadow-active);
 }
 
 .tab-actions {
 	display: flex;
 	justify-content: center;
-	padding-top: 12px;
-	border-top: 1px solid var(--background-modifier-border);
+	padding-top: 20px;
+	margin-top: 8px;
+	border-top: var(--neo-border);
 }
 
 .create-btn {
-	padding: 12px 24px;
-	border: none;
-	border-radius: 6px;
-	font-size: 1em;
-	font-weight: 500;
+	padding: 16px 32px;
+	border: var(--neo-border);
+	border-radius: var(--neo-radius);
+	font-size: 1.1em;
+	font-weight: 800;
 	cursor: pointer;
-	transition: all 0.15s ease;
+	transition: all 0.1s ease;
+	box-shadow: var(--neo-shadow);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
 }
 
 .create-btn.primary {
+	background: var(--neo-yellow);
+	color: var(--text-normal);
+}
+
+.theme-dark .create-btn.primary {
 	background: var(--interactive-accent);
 	color: var(--text-on-accent);
 }
 
 .create-btn.primary:hover {
+	transform: translate(-2px, -2px);
+	box-shadow: var(--neo-shadow-hover);
+	background: #FFD700;
+}
+
+.theme-dark .create-btn.primary:hover {
 	background: var(--interactive-accent-hover);
 }
 
+.create-btn.primary:active {
+	transform: translate(2px, 2px);
+	box-shadow: var(--neo-shadow-active);
+}
+
 /* ============================================
-   SELF EVAL MODAL STYLES
+   SELF EVAL MODAL STYLES - NEO-BRUTALISM
    ============================================ */
 
 .self-eval-modal {
-	padding: 20px;
+	padding: 28px;
+	border: var(--neo-border);
+	border-radius: var(--neo-radius);
+	box-shadow: var(--neo-shadow);
+	background: var(--background-primary);
 }
 
 .self-eval-modal h2 {
-	margin: 0 0 20px 0;
+	margin: 0 0 24px 0;
+	padding: 16px 20px;
 	text-align: center;
+	font-size: 1.3em;
+	font-weight: 800;
+	background: var(--neo-pink);
+	border: var(--neo-border);
+	border-radius: var(--neo-radius);
+	box-shadow: var(--neo-shadow);
+}
+
+.theme-dark .self-eval-modal h2 {
+	background: var(--background-secondary-alt);
 }
 
 .eval-section {
-	margin-bottom: 20px;
+	margin-bottom: 24px;
+	padding: 16px;
+	background: var(--background-secondary);
+	border: var(--neo-border);
+	border-radius: var(--neo-radius);
 }
 
 .eval-label {
 	display: block;
-	margin-bottom: 8px;
-	font-weight: 500;
+	margin-bottom: 12px;
+	font-weight: 700;
+	font-size: 1.05em;
 	color: var(--text-normal);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	text-align: center;
 }
 
 .eval-stars {
 	display: flex;
-	gap: 8px;
+	gap: 12px;
 	justify-content: center;
+	padding: 8px 0;
 }
 
 .eval-star {
-	font-size: 2em;
+	font-size: 2.4em;
 	cursor: pointer;
 	color: var(--text-muted);
-	transition: all 0.15s ease;
+	transition: all 0.1s ease;
+	text-shadow: 2px 2px 0px var(--background-modifier-border);
 }
 
 .eval-star.filled {
-	color: var(--color-yellow);
+	color: #FFD700;
+	text-shadow: 2px 2px 0px var(--text-muted);
+}
+
+.eval-star:hover {
+	transform: scale(1.15) rotate(-5deg);
 }
 
 .eval-star.hover {
-	color: var(--color-yellow);
-	transform: scale(1.1);
+	color: #FFD700;
+	transform: scale(1.15) rotate(-5deg);
 }
 
 .eval-notes-input {
 	width: 100%;
-	padding: 12px;
-	border: 1px solid var(--background-modifier-border);
-	border-radius: 4px;
+	padding: 14px 16px;
+	border: var(--neo-border);
+	border-radius: var(--neo-radius);
 	background: var(--background-primary);
+	box-shadow: var(--neo-shadow);
 	resize: vertical;
 	font-family: inherit;
+	font-size: 1em;
+	box-sizing: border-box;
+	min-height: 100px;
+}
+
+.eval-notes-input:focus {
+	outline: none;
+	background: var(--neo-mint);
+}
+
+.theme-dark .eval-notes-input:focus {
+	background: var(--background-secondary-alt);
 }
 
 .eval-buttons {
 	display: flex;
 	justify-content: center;
-	gap: 12px;
-	margin-top: 20px;
+	gap: 16px;
+	margin-top: 24px;
 }
 
 .eval-btn {
-	padding: 10px 20px;
-	border: 1px solid var(--background-modifier-border);
-	border-radius: 4px;
-	font-size: 0.95em;
+	padding: 14px 24px;
+	border: var(--neo-border);
+	border-radius: var(--neo-radius);
+	font-size: 1em;
+	font-weight: 700;
 	cursor: pointer;
-	transition: all 0.15s ease;
+	transition: all 0.1s ease;
+	box-shadow: var(--neo-shadow);
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
 }
 
 .eval-btn-secondary {
@@ -985,17 +1216,39 @@
 }
 
 .eval-btn-secondary:hover {
+	transform: translate(-2px, -2px);
+	box-shadow: var(--neo-shadow-hover);
 	background: var(--background-modifier-hover);
 }
 
+.eval-btn-secondary:active {
+	transform: translate(2px, 2px);
+	box-shadow: var(--neo-shadow-active);
+}
+
 .eval-btn-primary {
+	background: var(--neo-yellow);
+	color: var(--text-normal);
+}
+
+.theme-dark .eval-btn-primary {
 	background: var(--interactive-accent);
 	color: var(--text-on-accent);
-	border-color: var(--interactive-accent);
 }
 
 .eval-btn-primary:hover {
+	transform: translate(-2px, -2px);
+	box-shadow: var(--neo-shadow-hover);
+	background: #FFD700;
+}
+
+.theme-dark .eval-btn-primary:hover {
 	background: var(--interactive-accent-hover);
+}
+
+.eval-btn-primary:active {
+	transform: translate(2px, 2px);
+	box-shadow: var(--neo-shadow-active);
 }
 
 /* ============================================
