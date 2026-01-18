@@ -22,10 +22,10 @@ export class MealLogTab {
 	private foodInputs: HTMLInputElement[] = [];
 
 	private static readonly MEAL_TYPES: MealTypeOption[] = [
-		{ type: 'breakfast', label: '아침', icon: '🌅' },
-		{ type: 'lunch', label: '점심', icon: '☀️' },
-		{ type: 'dinner', label: '저녁', icon: '🌙' },
-		{ type: 'snack', label: '간식', icon: '🍪' },
+		{ type: 'breakfast', label: '아침', icon: '' },
+		{ type: 'lunch', label: '점심', icon: '' },
+		{ type: 'dinner', label: '저녁', icon: '' },
+		{ type: 'snack', label: '간식', icon: '' },
 	];
 
 	constructor(container: HTMLElement, ctx: MealLogTabContext) {
@@ -62,10 +62,9 @@ export class MealLogTab {
 
 		for (const mealOption of MealLogTab.MEAL_TYPES) {
 			const btn = mealTypeGrid.createEl('button', {
-				cls: `meal-type-btn ${this.selectedMealType === mealOption.type ? 'selected' : ''}`
+				cls: `meal-type-btn ${this.selectedMealType === mealOption.type ? 'selected' : ''}`,
+				text: mealOption.label
 			});
-			btn.createSpan({ text: mealOption.icon, cls: 'meal-type-icon' });
-			btn.createSpan({ text: mealOption.label, cls: 'meal-type-label' });
 
 			btn.addEventListener('click', () => {
 				this.selectedMealType = mealOption.type;
@@ -73,6 +72,8 @@ export class MealLogTab {
 					el.classList.remove('selected');
 				});
 				btn.classList.add('selected');
+				// 식사 종류 변경 시 음식 목록 초기화
+				this.clearFoodInputs();
 			});
 		}
 	}
@@ -89,6 +90,15 @@ export class MealLogTab {
 		addBtn.addEventListener('click', () => {
 			this.addFoodInputRow(foodList);
 		});
+	}
+
+	private clearFoodInputs(): void {
+		const foodList = this.container.querySelector('.food-input-list');
+		if (foodList) {
+			foodList.empty();
+			this.foodInputs = [];
+			this.addFoodInputRow(foodList as HTMLElement);
+		}
 	}
 
 	private addFoodInputRow(container: HTMLElement): void {
