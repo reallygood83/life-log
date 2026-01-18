@@ -32,16 +32,16 @@ export const DEFAULT_AI_SETTINGS: AIAnalysisSettings = {
 	defaultProvider: 'openai',
 
 	openaiApiKey: '',
-	openaiModel: 'gpt-4o',
+	openaiModel: 'gpt-5',
 
 	geminiApiKey: '',
-	geminiModel: 'gemini-2.0-flash',
+	geminiModel: 'gemini-2.5-flash',
 
 	grokApiKey: '',
-	grokModel: 'grok-3',
+	grokModel: 'grok-4',
 
 	openRouterApiKey: '',
-	openRouterModel: 'anthropic/claude-3.5-sonnet',
+	openRouterModel: 'anthropic/claude-sonnet-4',
 	openRouterCustomModels: [],
 
 	autoAnalysis: false,

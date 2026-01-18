@@ -31,11 +31,12 @@ export class OpenAIProvider extends BaseAIProvider {
 
 	private static readonly API_URL = 'https://api.openai.com/v1/chat/completions';
 	private static readonly MODELS = [
+		'gpt-5.2',
+		'gpt-5',
+		'o4-mini',
+		'o3',
 		'gpt-4o',
 		'gpt-4o-mini',
-		'gpt-4-turbo',
-		'gpt-4',
-		'gpt-3.5-turbo',
 	];
 
 	getAvailableModels(): string[] {

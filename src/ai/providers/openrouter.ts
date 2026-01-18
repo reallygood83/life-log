@@ -32,12 +32,14 @@ export class OpenRouterProvider extends BaseAIProvider {
 
 	private static readonly API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 	private static readonly DEFAULT_MODELS = [
-		'anthropic/claude-3.5-sonnet',
-		'anthropic/claude-3-opus',
-		'openai/gpt-4o',
-		'google/gemini-pro-1.5',
-		'meta-llama/llama-3.1-405b-instruct',
-		'mistralai/mistral-large',
+		'anthropic/claude-sonnet-4',
+		'anthropic/claude-opus-4',
+		'openai/gpt-5',
+		'openai/o3',
+		'google/gemini-2.5-pro',
+		'google/gemini-3-flash-preview',
+		'meta-llama/llama-4-maverick',
+		'deepseek/deepseek-r1',
 	];
 
 	private customModels: string[];

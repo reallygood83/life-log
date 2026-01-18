@@ -31,9 +31,10 @@ export class GrokProvider extends BaseAIProvider {
 
 	private static readonly API_URL = 'https://api.x.ai/v1/chat/completions';
 	private static readonly MODELS = [
+		'grok-4-heavy',
+		'grok-4',
 		'grok-3',
-		'grok-2',
-		'grok-2-mini',
+		'grok-3-mini',
 	];
 
 	getAvailableModels(): string[] {
