@@ -592,6 +592,7 @@ export class LifeLogSettingTab extends PluginSettingTab {
 						if (value && !value.startsWith('••')) {
 							aiSettings.openaiApiKey = value;
 							await this.plugin.saveSettings();
+							this.display(); // 버튼 상태 갱신
 						}
 					}));
 
@@ -672,6 +673,7 @@ export class LifeLogSettingTab extends PluginSettingTab {
 						if (value && !value.startsWith('••')) {
 							aiSettings.geminiApiKey = value;
 							await this.plugin.saveSettings();
+							this.display(); // 버튼 상태 갱신
 						}
 					}));
 
@@ -751,6 +753,7 @@ export class LifeLogSettingTab extends PluginSettingTab {
 						if (value && !value.startsWith('••')) {
 							aiSettings.grokApiKey = value;
 							await this.plugin.saveSettings();
+							this.display(); // 버튼 상태 갱신
 						}
 					}));
 
@@ -830,6 +833,7 @@ export class LifeLogSettingTab extends PluginSettingTab {
 						if (value && !value.startsWith('••')) {
 							aiSettings.openRouterApiKey = value;
 							await this.plugin.saveSettings();
+							this.display(); // 버튼 상태 갱신
 						}
 					}));
 
