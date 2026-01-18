@@ -1,9 +1,9 @@
 {
 	"id": "life-log",
 	"name": "Life Log",
-	"version": "2.5.4",
+	"version": "2.7.0",
 	"minAppVersion": "0.15.0",
-	"description": "Track your study sessions and workouts with interactive timers, self-evaluation, and AI-friendly data export",
+	"description": "Track your study sessions, workouts, work tasks, and meals with interactive timers, self-evaluation, and AI-powered analysis",
 	"author": "reallygood83",
 	"authorUrl": "https://github.com/reallygood83",
 	"isDesktopOnly": false

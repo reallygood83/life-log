@@ -1,4 +1,4 @@
-import { ParsedStudyLog, StudyLogCallbacks, TimerState } from '../../types';
+import { ParsedStudyLog, StudyLogCallbacks, TimerState, TimerStyle } from '../../types';
 import { renderStudyHeader, updateStudyHeaderTimer, StudyHeaderElements } from './header';
 import { renderStudyTask, updateStudyTaskTimer, StudyTaskElements } from './task';
 import { renderStudyControls } from './controls';
@@ -13,10 +13,11 @@ export interface StudyRendererContext {
 	timerManager: TimerManager;
 	enableTimerSound?: boolean;
 	enableNotification?: boolean;
+	timerStyle?: TimerStyle;
 }
 
 export function renderStudyLog(ctx: StudyRendererContext): void {
-	const { el, parsed, callbacks, studyId, timerManager, enableTimerSound = true, enableNotification = false } = ctx;
+	const { el, parsed, callbacks, studyId, timerManager, enableTimerSound = true, enableNotification = false, timerStyle } = ctx;
 
 	el.empty();
 
@@ -34,7 +35,8 @@ export function renderStudyLog(ctx: StudyRendererContext): void {
 		container,
 		parsed.metadata,
 		timerState,
-		isTimerRunning
+		isTimerRunning,
+		timerStyle
 	);
 
 	if (parsed.tasks.length === 0 && parsed.metadata.state === 'planned') {
@@ -81,7 +83,7 @@ export function renderStudyLog(ctx: StudyRendererContext): void {
 			: false;
 
 		timerManager.subscribe(studyId, (state: TimerState) => {
-			updateStudyHeaderTimer(headerElements.timerEl, state);
+			updateStudyHeaderTimer(headerElements.timerEl, state, timerStyle);
 
 			const currentActiveIndex = timerManager.getActiveExerciseIndex(studyId);
 

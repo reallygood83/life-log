@@ -1,5 +1,5 @@
-import { App, PluginSettingTab, Setting } from 'obsidian';
-import { LifeLogSettings, SubjectPreset, WorkoutTemplate, TimerStyle } from './types';
+import { App, PluginSettingTab, Setting, Notice } from 'obsidian';
+import { LifeLogSettings, SubjectPreset, WorkoutTemplate, TimerStyle, AIAnalysisSettings, AIProviderType } from './types';
 import type LifeLogPlugin from './main';
 
 export const DEFAULT_SUBJECTS: SubjectPreset[] = [
@@ -28,30 +28,63 @@ export const DEFAULT_WORKOUT_TEMPLATES: WorkoutTemplate[] = [
 	]},
 ];
 
+export const DEFAULT_AI_SETTINGS: AIAnalysisSettings = {
+	defaultProvider: 'openai',
+
+	openaiApiKey: '',
+	openaiModel: 'gpt-4o',
+
+	geminiApiKey: '',
+	geminiModel: 'gemini-2.0-flash',
+
+	grokApiKey: '',
+	grokModel: 'grok-3',
+
+	openRouterApiKey: '',
+	openRouterModel: 'anthropic/claude-3.5-sonnet',
+	openRouterCustomModels: [],
+
+	autoAnalysis: false,
+	analysisSchedule: 'manual',
+
+	enabledTemplates: [
+		'study-weekly', 'study-monthly',
+		'workout-weekly', 'workout-progress',
+		'work-weekly', 'work-productivity',
+		'meal-weekly', 'meal-pattern'
+	],
+	customTemplates: [],
+
+	reportSavePath: 'Life Logs/Reports',
+	reportNaming: '{{category}}_{{date}}_report',
+};
+
 export const DEFAULT_SETTINGS: LifeLogSettings = {
 	logFolder: 'Life Logs',
 	dateFormat: 'YYYY-MM-DD',
-	
+
 	subjects: DEFAULT_SUBJECTS,
 	defaultStudyDuration: 30,
 	enablePomodoro: false,
 	pomodoroWork: 25,
 	pomodoroBreak: 5,
-	
+
 	defaultRestDuration: 60,
 	workoutTemplates: DEFAULT_WORKOUT_TEMPLATES,
-	
+
 	defaultTab: 'study',
 	showRibbonIcon: true,
-	
+
 	enableTimerSound: true,
 	enableNotifications: true,
-	
+
 	timerStyle: 'digital',
 	usePerTypeTimerStyle: false,
 	studyTimerStyle: 'pomodoro',
 	workTimerStyle: 'digital',
 	workoutTimerStyle: 'digital',
+
+	aiAnalysis: DEFAULT_AI_SETTINGS,
 };
 
 export class LifeLogSettingTab extends PluginSettingTab {
@@ -75,12 +108,18 @@ export class LifeLogSettingTab extends PluginSettingTab {
 			return;
 		}
 
+		// Ensure aiAnalysis settings exist
+		if (!this.plugin.settings.aiAnalysis) {
+			this.plugin.settings.aiAnalysis = { ...DEFAULT_AI_SETTINGS };
+		}
+
 		this.renderSaveSettings(containerEl);
 		this.renderStudySettings(containerEl);
 		this.renderWorkoutSettings(containerEl);
 		this.renderTimerStyleSettings(containerEl);
 		this.renderUISettings(containerEl);
 		this.renderNotificationSettings(containerEl);
+		this.renderAISettings(containerEl);
 	}
 
 	private renderSaveSettings(containerEl: HTMLElement): void {
@@ -488,5 +527,402 @@ export class LifeLogSettingTab extends PluginSettingTab {
 					this.plugin.settings.enableNotifications = value;
 					await this.plugin.saveSettings();
 				}));
+	}
+
+	private renderAISettings(containerEl: HTMLElement): void {
+		containerEl.createEl('h3', { text: '🤖 AI 분석 설정' });
+
+		const aiSettings = this.plugin.settings.aiAnalysis;
+
+		// Provider Selection
+		new Setting(containerEl)
+			.setName('AI Provider')
+			.setDesc('분석에 사용할 AI 서비스를 선택합니다')
+			.addDropdown(dropdown => dropdown
+				.addOption('openai', 'OpenAI (GPT-4)')
+				.addOption('gemini', 'Google Gemini')
+				.addOption('grok', 'xAI Grok')
+				.addOption('openrouter', 'OpenRouter')
+				.setValue(aiSettings.defaultProvider)
+				.onChange(async (value: AIProviderType) => {
+					aiSettings.defaultProvider = value;
+					await this.plugin.saveSettings();
+					this.display();
+				}));
+
+		// OpenAI Settings
+		this.renderOpenAISettings(containerEl, aiSettings);
+
+		// Gemini Settings
+		this.renderGeminiSettings(containerEl, aiSettings);
+
+		// Grok Settings
+		this.renderGrokSettings(containerEl, aiSettings);
+
+		// OpenRouter Settings
+		this.renderOpenRouterSettings(containerEl, aiSettings);
+
+		// Report Settings
+		this.renderReportSettings(containerEl, aiSettings);
+	}
+
+	private renderOpenAISettings(containerEl: HTMLElement, aiSettings: AIAnalysisSettings): void {
+		const isActive = aiSettings.defaultProvider === 'openai';
+		const sectionEl = containerEl.createDiv({ cls: `ai-provider-section ${isActive ? 'active' : 'collapsed'}` });
+
+		new Setting(sectionEl)
+			.setName('▶ OpenAI 설정')
+			.setDesc(isActive ? '현재 사용 중' : '클릭하여 확장')
+			.setClass('ai-provider-header')
+			.addButton(button => button
+				.setButtonText('연결 테스트')
+				.setDisabled(!aiSettings.openaiApiKey)
+				.onClick(async () => {
+					await this.testOpenAIConnection(aiSettings);
+				}));
+
+		if (isActive || aiSettings.openaiApiKey) {
+			new Setting(sectionEl)
+				.setName('API Key')
+				.setDesc('OpenAI API 키')
+				.addText(text => text
+					.setPlaceholder('sk-...')
+					.setValue(aiSettings.openaiApiKey ? '••••••••' : '')
+					.onChange(async (value) => {
+						if (value && !value.startsWith('••')) {
+							aiSettings.openaiApiKey = value;
+							await this.plugin.saveSettings();
+						}
+					}));
+
+			new Setting(sectionEl)
+				.setName('모델')
+				.setDesc('사용할 OpenAI 모델')
+				.addDropdown(dropdown => dropdown
+					.addOption('gpt-4o', 'GPT-4o (추천)')
+					.addOption('gpt-4o-mini', 'GPT-4o Mini (빠름)')
+					.addOption('gpt-4-turbo', 'GPT-4 Turbo')
+					.addOption('gpt-4', 'GPT-4')
+					.setValue(aiSettings.openaiModel)
+					.onChange(async (value) => {
+						aiSettings.openaiModel = value;
+						await this.plugin.saveSettings();
+					}));
+		}
+	}
+
+	private renderGeminiSettings(containerEl: HTMLElement, aiSettings: AIAnalysisSettings): void {
+		const isActive = aiSettings.defaultProvider === 'gemini';
+		const sectionEl = containerEl.createDiv({ cls: `ai-provider-section ${isActive ? 'active' : 'collapsed'}` });
+
+		new Setting(sectionEl)
+			.setName('▶ Google Gemini 설정')
+			.setDesc(isActive ? '현재 사용 중' : '클릭하여 확장')
+			.setClass('ai-provider-header')
+			.addButton(button => button
+				.setButtonText('연결 테스트')
+				.setDisabled(!aiSettings.geminiApiKey)
+				.onClick(async () => {
+					await this.testGeminiConnection(aiSettings);
+				}));
+
+		if (isActive || aiSettings.geminiApiKey) {
+			new Setting(sectionEl)
+				.setName('API Key')
+				.setDesc('Google AI Studio API 키')
+				.addText(text => text
+					.setPlaceholder('AIza...')
+					.setValue(aiSettings.geminiApiKey ? '••••••••' : '')
+					.onChange(async (value) => {
+						if (value && !value.startsWith('••')) {
+							aiSettings.geminiApiKey = value;
+							await this.plugin.saveSettings();
+						}
+					}));
+
+			new Setting(sectionEl)
+				.setName('모델')
+				.setDesc('사용할 Gemini 모델')
+				.addDropdown(dropdown => dropdown
+					.addOption('gemini-2.0-flash', 'Gemini 2.0 Flash (추천)')
+					.addOption('gemini-1.5-pro', 'Gemini 1.5 Pro')
+					.addOption('gemini-1.5-flash', 'Gemini 1.5 Flash')
+					.setValue(aiSettings.geminiModel)
+					.onChange(async (value) => {
+						aiSettings.geminiModel = value;
+						await this.plugin.saveSettings();
+					}));
+		}
+	}
+
+	private renderGrokSettings(containerEl: HTMLElement, aiSettings: AIAnalysisSettings): void {
+		const isActive = aiSettings.defaultProvider === 'grok';
+		const sectionEl = containerEl.createDiv({ cls: `ai-provider-section ${isActive ? 'active' : 'collapsed'}` });
+
+		new Setting(sectionEl)
+			.setName('▶ xAI Grok 설정')
+			.setDesc(isActive ? '현재 사용 중' : '클릭하여 확장')
+			.setClass('ai-provider-header')
+			.addButton(button => button
+				.setButtonText('연결 테스트')
+				.setDisabled(!aiSettings.grokApiKey)
+				.onClick(async () => {
+					await this.testGrokConnection(aiSettings);
+				}));
+
+		if (isActive || aiSettings.grokApiKey) {
+			new Setting(sectionEl)
+				.setName('API Key')
+				.setDesc('xAI API 키')
+				.addText(text => text
+					.setPlaceholder('xai-...')
+					.setValue(aiSettings.grokApiKey ? '••••••••' : '')
+					.onChange(async (value) => {
+						if (value && !value.startsWith('••')) {
+							aiSettings.grokApiKey = value;
+							await this.plugin.saveSettings();
+						}
+					}));
+
+			new Setting(sectionEl)
+				.setName('모델')
+				.setDesc('사용할 Grok 모델')
+				.addDropdown(dropdown => dropdown
+					.addOption('grok-3', 'Grok 3 (추천)')
+					.addOption('grok-2', 'Grok 2')
+					.setValue(aiSettings.grokModel)
+					.onChange(async (value) => {
+						aiSettings.grokModel = value;
+						await this.plugin.saveSettings();
+					}));
+		}
+	}
+
+	private renderOpenRouterSettings(containerEl: HTMLElement, aiSettings: AIAnalysisSettings): void {
+		const isActive = aiSettings.defaultProvider === 'openrouter';
+		const sectionEl = containerEl.createDiv({ cls: `ai-provider-section ${isActive ? 'active' : 'collapsed'}` });
+
+		new Setting(sectionEl)
+			.setName('▶ OpenRouter 설정')
+			.setDesc(isActive ? '현재 사용 중 - 다양한 모델 선택 가능' : '클릭하여 확장')
+			.setClass('ai-provider-header')
+			.addButton(button => button
+				.setButtonText('연결 테스트')
+				.setDisabled(!aiSettings.openRouterApiKey)
+				.onClick(async () => {
+					await this.testOpenRouterConnection(aiSettings);
+				}));
+
+		if (isActive || aiSettings.openRouterApiKey) {
+			new Setting(sectionEl)
+				.setName('API Key')
+				.setDesc('OpenRouter API 키')
+				.addText(text => text
+					.setPlaceholder('sk-or-...')
+					.setValue(aiSettings.openRouterApiKey ? '••••••••' : '')
+					.onChange(async (value) => {
+						if (value && !value.startsWith('••')) {
+							aiSettings.openRouterApiKey = value;
+							await this.plugin.saveSettings();
+						}
+					}));
+
+			new Setting(sectionEl)
+				.setName('기본 모델')
+				.setDesc('사용할 OpenRouter 모델 ID (예: anthropic/claude-3.5-sonnet)')
+				.addText(text => text
+					.setPlaceholder('anthropic/claude-3.5-sonnet')
+					.setValue(aiSettings.openRouterModel)
+					.onChange(async (value) => {
+						aiSettings.openRouterModel = value || 'anthropic/claude-3.5-sonnet';
+						await this.plugin.saveSettings();
+					}));
+
+			// Custom models management
+			const customModelsEl = sectionEl.createDiv({ cls: 'custom-models-section' });
+
+			new Setting(customModelsEl)
+				.setName('추가 모델 관리')
+				.setDesc('자주 사용하는 모델을 추가합니다')
+				.addButton(button => button
+					.setButtonText('+ 모델 추가')
+					.onClick(async () => {
+						aiSettings.openRouterCustomModels.push('');
+						await this.plugin.saveSettings();
+						this.display();
+					}));
+
+			// Suggested models
+			const suggestedModels = [
+				'anthropic/claude-3.5-sonnet',
+				'anthropic/claude-3-opus',
+				'google/gemini-pro-1.5',
+				'meta-llama/llama-3.1-405b-instruct',
+				'mistralai/mistral-large',
+			];
+
+			const modelListEl = customModelsEl.createDiv({ cls: 'model-list' });
+
+			for (let i = 0; i < aiSettings.openRouterCustomModels.length; i++) {
+				const modelRow = modelListEl.createDiv({ cls: 'model-row' });
+
+				const modelInput = modelRow.createEl('input', {
+					type: 'text',
+					value: aiSettings.openRouterCustomModels[i],
+					placeholder: 'model/name',
+					cls: 'model-input'
+				});
+				modelInput.addEventListener('change', async () => {
+					aiSettings.openRouterCustomModels[i] = modelInput.value;
+					await this.plugin.saveSettings();
+				});
+
+				const deleteBtn = modelRow.createEl('button', {
+					text: '×',
+					cls: 'model-delete-btn'
+				});
+				deleteBtn.addEventListener('click', async () => {
+					aiSettings.openRouterCustomModels.splice(i, 1);
+					await this.plugin.saveSettings();
+					this.display();
+				});
+			}
+
+			// Suggested models dropdown
+			new Setting(customModelsEl)
+				.setName('추천 모델')
+				.setDesc('자주 사용되는 모델 목록')
+				.addDropdown(dropdown => {
+					dropdown.addOption('', '-- 선택하여 추가 --');
+					for (const model of suggestedModels) {
+						if (!aiSettings.openRouterCustomModels.includes(model)) {
+							dropdown.addOption(model, model);
+						}
+					}
+					dropdown.onChange(async (value) => {
+						if (value) {
+							aiSettings.openRouterCustomModels.push(value);
+							await this.plugin.saveSettings();
+							this.display();
+						}
+					});
+				});
+		}
+	}
+
+	private renderReportSettings(containerEl: HTMLElement, aiSettings: AIAnalysisSettings): void {
+		containerEl.createEl('h4', { text: '📊 리포트 설정' });
+
+		new Setting(containerEl)
+			.setName('저장 경로')
+			.setDesc('AI 분석 리포트가 저장될 폴더 경로')
+			.addText(text => text
+				.setPlaceholder('Life Logs/Reports')
+				.setValue(aiSettings.reportSavePath)
+				.onChange(async (value) => {
+					aiSettings.reportSavePath = value || 'Life Logs/Reports';
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
+			.setName('파일명 형식')
+			.setDesc('리포트 파일명 형식 ({{category}}, {{date}} 사용 가능)')
+			.addText(text => text
+				.setPlaceholder('{{category}}_{{date}}_report')
+				.setValue(aiSettings.reportNaming)
+				.onChange(async (value) => {
+					aiSettings.reportNaming = value || '{{category}}_{{date}}_report';
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
+			.setName('자동 분석')
+			.setDesc('자동 분석 일정 설정')
+			.addDropdown(dropdown => dropdown
+				.addOption('manual', '수동 실행만')
+				.addOption('daily', '매일')
+				.addOption('weekly', '매주')
+				.setValue(aiSettings.analysisSchedule)
+				.onChange(async (value: 'manual' | 'daily' | 'weekly') => {
+					aiSettings.analysisSchedule = value;
+					aiSettings.autoAnalysis = value !== 'manual';
+					await this.plugin.saveSettings();
+				}));
+	}
+
+	// Connection test methods
+	private async testOpenAIConnection(aiSettings: AIAnalysisSettings): Promise<void> {
+		new Notice('OpenAI 연결 테스트 중...');
+		try {
+			const response = await fetch('https://api.openai.com/v1/models', {
+				headers: {
+					'Authorization': `Bearer ${aiSettings.openaiApiKey}`
+				}
+			});
+			if (response.ok) {
+				new Notice('✅ OpenAI 연결 성공!');
+			} else {
+				const error = await response.json();
+				new Notice(`❌ OpenAI 연결 실패: ${error.error?.message || response.statusText}`);
+			}
+		} catch (e) {
+			new Notice(`❌ OpenAI 연결 실패: ${e instanceof Error ? e.message : '알 수 없는 오류'}`);
+		}
+	}
+
+	private async testGeminiConnection(aiSettings: AIAnalysisSettings): Promise<void> {
+		new Notice('Gemini 연결 테스트 중...');
+		try {
+			const response = await fetch(
+				`https://generativelanguage.googleapis.com/v1beta/models?key=${aiSettings.geminiApiKey}`
+			);
+			if (response.ok) {
+				new Notice('✅ Gemini 연결 성공!');
+			} else {
+				const error = await response.json();
+				new Notice(`❌ Gemini 연결 실패: ${error.error?.message || response.statusText}`);
+			}
+		} catch (e) {
+			new Notice(`❌ Gemini 연결 실패: ${e instanceof Error ? e.message : '알 수 없는 오류'}`);
+		}
+	}
+
+	private async testGrokConnection(aiSettings: AIAnalysisSettings): Promise<void> {
+		new Notice('Grok 연결 테스트 중...');
+		try {
+			const response = await fetch('https://api.x.ai/v1/models', {
+				headers: {
+					'Authorization': `Bearer ${aiSettings.grokApiKey}`
+				}
+			});
+			if (response.ok) {
+				new Notice('✅ Grok 연결 성공!');
+			} else {
+				const error = await response.json();
+				new Notice(`❌ Grok 연결 실패: ${error.error?.message || response.statusText}`);
+			}
+		} catch (e) {
+			new Notice(`❌ Grok 연결 실패: ${e instanceof Error ? e.message : '알 수 없는 오류'}`);
+		}
+	}
+
+	private async testOpenRouterConnection(aiSettings: AIAnalysisSettings): Promise<void> {
+		new Notice('OpenRouter 연결 테스트 중...');
+		try {
+			const response = await fetch('https://openrouter.ai/api/v1/auth/key', {
+				headers: {
+					'Authorization': `Bearer ${aiSettings.openRouterApiKey}`
+				}
+			});
+			if (response.ok) {
+				const data = await response.json();
+				new Notice(`✅ OpenRouter 연결 성공! (크레딧: $${data.data?.limit_remaining?.toFixed(2) || 'N/A'})`);
+			} else {
+				const error = await response.json();
+				new Notice(`❌ OpenRouter 연결 실패: ${error.error?.message || response.statusText}`);
+			}
+		} catch (e) {
+			new Notice(`❌ OpenRouter 연결 실패: ${e instanceof Error ? e.message : '알 수 없는 오류'}`);
+		}
 	}
 }

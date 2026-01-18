@@ -1,4 +1,4 @@
-import { ParsedWorkout, WorkoutCallbacks, TimerState } from '../types';
+import { ParsedWorkout, WorkoutCallbacks, TimerState, TimerStyle } from '../types';
 import { renderHeader, updateHeaderTimer } from './header';
 import { renderExercise, updateExerciseTimer, ExerciseElements } from './exercise';
 import { renderWorkoutControls } from './controls';
@@ -11,10 +11,11 @@ export interface RendererContext {
 	callbacks: WorkoutCallbacks;
 	workoutId: string;
 	timerManager: TimerManager;
+	timerStyle?: TimerStyle;
 }
 
 export function renderWorkout(ctx: RendererContext): void {
-	const { el, parsed, callbacks, workoutId, timerManager } = ctx;
+	const { el, parsed, callbacks, workoutId, timerManager, timerStyle } = ctx;
 
 	// Clear existing content
 	el.empty();
@@ -34,7 +35,8 @@ export function renderWorkout(ctx: RendererContext): void {
 		container,
 		parsed.metadata,
 		timerState,
-		isTimerRunning
+		isTimerRunning,
+		timerStyle
 	);
 
 	// Check if empty workout - show "Add Sample Workout" button
@@ -92,7 +94,7 @@ export function renderWorkout(ctx: RendererContext): void {
 
 		timerManager.subscribe(workoutId, (state: TimerState) => {
 			// Update header timer
-			updateHeaderTimer(headerTimerEl, state);
+			updateHeaderTimer(headerTimerEl, state, timerStyle);
 
 			// Get the CURRENT active index from the timer manager (not the stale one)
 			const currentActiveIndex = timerManager.getActiveExerciseIndex(workoutId);

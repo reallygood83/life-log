@@ -1,11 +1,13 @@
-import { WorkoutMetadata, TimerState } from '../types';
+import { WorkoutMetadata, TimerState, TimerStyle } from '../types';
 import { formatDuration, formatDurationHuman } from '../parser/exercise';
+import { renderTimerByStyle } from './timer/styles';
 
 export function renderHeader(
 	container: HTMLElement,
 	metadata: WorkoutMetadata,
 	timerState: TimerState | null,
-	isTimerRunning: boolean
+	isTimerRunning: boolean,
+	timerStyle: TimerStyle = 'digital'
 ): { titleEl: HTMLElement; timerEl: HTMLElement } {
 	const headerEl = container.createDiv({ cls: 'workout-header' });
 
@@ -29,8 +31,7 @@ export function renderHeader(
 		timerEl.createSpan({ cls: 'workout-timer-indicator recorded', text: ' ✓' });
 	} else if (isTimerRunning && timerState) {
 		// Show running timer
-		timerEl.textContent = `Total: ${formatDuration(timerState.workoutElapsed)}`;
-		timerEl.createSpan({ cls: 'workout-timer-indicator count-up', text: ' ▲' });
+		renderTimerByStyle(timerEl, timerState, timerStyle);
 	} else if (metadata.state === 'planned') {
 		timerEl.textContent = '--:--';
 	} else {
@@ -42,9 +43,8 @@ export function renderHeader(
 
 export function updateHeaderTimer(
 	timerEl: HTMLElement,
-	timerState: TimerState
+	timerState: TimerState,
+	timerStyle: TimerStyle = 'digital'
 ): void {
-	timerEl.empty();
-	timerEl.textContent = `Total: ${formatDuration(timerState.workoutElapsed)}`;
-	timerEl.createSpan({ cls: 'workout-timer-indicator count-up', text: ' ▲' });
+	renderTimerByStyle(timerEl, timerState, timerStyle);
 }

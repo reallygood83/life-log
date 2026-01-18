@@ -5,7 +5,7 @@ import { renderWorkout } from './renderer';
 import { TimerManager } from './timer/manager';
 import { FileUpdater } from './file/updater';
 import { FileCreator } from './file/creator';
-import { ParsedWorkout, WorkoutCallbacks, SectionInfo, LifeLogSettings, ParsedStudyLog, StudyLogCallbacks, ParsedWorkLog, WorkLogCallbacks } from './types';
+import { ParsedWorkout, WorkoutCallbacks, SectionInfo, LifeLogSettings, ParsedStudyLog, StudyLogCallbacks, ParsedWorkLog, WorkLogCallbacks, ParsedMealLog, MealLogCallbacks } from './types';
 import { formatDurationHuman } from './parser/exercise';
 import { parseStudyLog } from './parser/study';
 import { serializeStudyLog, updateStudyTaskState, setStudyTaskDuration, setStudyScores } from './study-serializer';
@@ -13,9 +13,13 @@ import { renderStudyLog } from './renderer/study';
 import { parseWorkLog } from './parser/work';
 import { serializeWorkLog, updateWorkTaskState, setWorkTaskActualDuration } from './work-serializer';
 import { renderWorkLog } from './renderer/work';
-import { DEFAULT_SETTINGS, DEFAULT_SUBJECTS, DEFAULT_WORKOUT_TEMPLATES, LifeLogSettingTab } from './settings';
+import { parseMealLog } from './parser/meal';
+import { serializeMealLog, toggleFoodState, addFoodItem, removeFoodItem, setMealPhoto } from './meal-serializer';
+import { renderMealLog } from './renderer/meal';
+import { DEFAULT_SETTINGS, DEFAULT_SUBJECTS, DEFAULT_WORKOUT_TEMPLATES, DEFAULT_AI_SETTINGS, LifeLogSettingTab } from './settings';
 import { QuickLogModal } from './modal/QuickLogModal';
 import { SelfEvalModal } from './modal/SelfEvalModal';
+import { AIAnalysisModal } from './ai/modals/AnalysisModal';
 
 const LIFE_LOG_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/><circle cx="12" cy="12" r="3"/></svg>`;
 
@@ -28,7 +32,7 @@ export default class LifeLogPlugin extends Plugin {
 
 	async onload(): Promise<void> {
 		await this.loadSettings();
-		
+
 		this.fileUpdater = new FileUpdater(this.app);
 		this.fileCreator = new FileCreator(this.app, this.settings);
 
@@ -44,6 +48,10 @@ export default class LifeLogPlugin extends Plugin {
 
 		this.registerMarkdownCodeBlockProcessor('work-log', (source, el, ctx) => {
 			this.processWorkBlock(source, el, ctx);
+		});
+
+		this.registerMarkdownCodeBlockProcessor('meal-log', (source, el, ctx) => {
+			this.processMealBlock(source, el, ctx);
 		});
 
 		this.addCommand({
@@ -90,6 +98,19 @@ export default class LifeLogPlugin extends Plugin {
 			}
 		});
 
+		this.addCommand({
+			id: 'open-ai-analysis',
+			name: 'AI 분석',
+			hotkeys: [{ modifiers: ['Mod', 'Shift'], key: 'a' }],
+			callback: () => {
+				new AIAnalysisModal(
+					this.app,
+					this.settings.aiAnalysis,
+					this.settings.logFolder
+				).open();
+			}
+		});
+
 		console.log('[Life Log] Registering settings tab...');
 		this.addSettingTab(new LifeLogSettingTab(this.app, this));
 		console.log('[Life Log] Settings tab registered');
@@ -104,13 +125,20 @@ export default class LifeLogPlugin extends Plugin {
 	async loadSettings(): Promise<void> {
 		const loaded = await this.loadData();
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, loaded);
-		
+
 		if (!this.settings.subjects || this.settings.subjects.length === 0) {
 			this.settings.subjects = [...DEFAULT_SUBJECTS];
 		}
-		
+
 		if (!this.settings.workoutTemplates || this.settings.workoutTemplates.length === 0) {
 			this.settings.workoutTemplates = [...DEFAULT_WORKOUT_TEMPLATES];
+		}
+
+		// Ensure AI settings exist with defaults
+		if (!this.settings.aiAnalysis) {
+			this.settings.aiAnalysis = { ...DEFAULT_AI_SETTINGS };
+		} else {
+			this.settings.aiAnalysis = Object.assign({}, DEFAULT_AI_SETTINGS, this.settings.aiAnalysis);
 		}
 	}
 
@@ -158,12 +186,17 @@ export default class LifeLogPlugin extends Plugin {
 
 		const callbacks = this.createWorkoutCallbacks(ctx, sectionInfo, parsed, workoutId);
 
+		const timerStyle = this.settings.usePerTypeTimerStyle
+			? this.settings.workoutTimerStyle
+			: this.settings.timerStyle;
+
 		renderWorkout({
 			el,
 			parsed,
 			callbacks,
 			workoutId,
-			timerManager: this.timerManager
+			timerManager: this.timerManager,
+			timerStyle
 		});
 	}
 
@@ -189,6 +222,10 @@ export default class LifeLogPlugin extends Plugin {
 
 		const callbacks = this.createStudyCallbacks(ctx, sectionInfo, parsed, studyId);
 
+		const timerStyle = this.settings.usePerTypeTimerStyle
+			? this.settings.studyTimerStyle
+			: this.settings.timerStyle;
+
 		renderStudyLog({
 			el,
 			parsed,
@@ -196,7 +233,8 @@ export default class LifeLogPlugin extends Plugin {
 			studyId,
 			timerManager: this.timerManager,
 			enableTimerSound: this.settings.enableTimerSound,
-			enableNotification: this.settings.enableNotifications
+			enableNotification: this.settings.enableNotifications,
+			timerStyle
 		});
 	}
 
@@ -222,6 +260,10 @@ export default class LifeLogPlugin extends Plugin {
 
 		const callbacks = this.createWorkCallbacks(ctx, sectionInfo, parsed, workId);
 
+		const timerStyle = this.settings.usePerTypeTimerStyle
+			? this.settings.workTimerStyle
+			: this.settings.timerStyle;
+
 		renderWorkLog({
 			el,
 			parsed,
@@ -229,7 +271,8 @@ export default class LifeLogPlugin extends Plugin {
 			workId,
 			timerManager: this.timerManager,
 			enableTimerSound: this.settings.enableTimerSound,
-			enableNotification: this.settings.enableNotifications
+			enableNotification: this.settings.enableNotifications,
+			timerStyle
 		});
 	}
 
@@ -686,7 +729,7 @@ export default class LifeLogPlugin extends Plugin {
 			onOpenSelfEval: (): void => {
 				new SelfEvalModal(this.app, async (result) => {
 					currentParsed = setStudyScores(currentParsed, result.focusScore, result.comprehensionScore);
-					
+
 					const timerState = this.timerManager.getTimerState(studyId);
 					if (timerState) {
 						currentParsed.metadata.totalDuration = formatDurationHuman(timerState.workoutElapsed);
@@ -719,5 +762,84 @@ export default class LifeLogPlugin extends Plugin {
 		const hours = String(date.getHours()).padStart(2, '0');
 		const minutes = String(date.getMinutes()).padStart(2, '0');
 		return `${year}-${month}-${day} ${hours}:${minutes}`;
+	}
+
+	private processMealBlock(
+		source: string,
+		el: HTMLElement,
+		ctx: MarkdownPostProcessorContext
+	): void {
+		const parsed = parseMealLog(source);
+		const sectionInfo = ctx.getSectionInfo(el) as SectionInfo | null;
+		const mealId = `meal:${ctx.sourcePath}:${sectionInfo?.lineStart ?? 0}`;
+
+		const callbacks = this.createMealCallbacks(ctx, sectionInfo, parsed, mealId);
+
+		renderMealLog({
+			el,
+			parsed,
+			callbacks,
+			mealId,
+			app: this.app
+		});
+	}
+
+	private createMealCallbacks(
+		ctx: MarkdownPostProcessorContext,
+		sectionInfo: SectionInfo | null,
+		parsed: ParsedMealLog,
+		mealId: string
+	): MealLogCallbacks {
+		let currentParsed = parsed;
+
+		const updateFile = async (newParsed: ParsedMealLog): Promise<void> => {
+			currentParsed = newParsed;
+			const newContent = serializeMealLog(newParsed);
+			const expectedTitle = currentParsed.metadata.title;
+			await this.fileUpdater?.updateCodeBlock(ctx.sourcePath, sectionInfo, newContent, expectedTitle);
+		};
+
+		return {
+			onCompleteMeal: async (): Promise<void> => {
+				currentParsed.metadata.state = 'completed';
+				if (!currentParsed.metadata.date) {
+					currentParsed.metadata.date = this.formatStartDate(new Date());
+				}
+
+				// Mark all pending foods as completed
+				for (let i = 0; i < currentParsed.foods.length; i++) {
+					const food = currentParsed.foods[i];
+					if (food && food.state === 'pending') {
+						currentParsed = toggleFoodState(currentParsed, i);
+					}
+				}
+
+				await updateFile(currentParsed);
+			},
+
+			onFoodToggle: async (foodIndex: number): Promise<void> => {
+				currentParsed = toggleFoodState(currentParsed, foodIndex);
+				await updateFile(currentParsed);
+			},
+
+			onAddFood: async (foodName: string): Promise<void> => {
+				currentParsed = addFoodItem(currentParsed, foodName);
+				await updateFile(currentParsed);
+			},
+
+			onRemoveFood: async (foodIndex: number): Promise<void> => {
+				currentParsed = removeFoodItem(currentParsed, foodIndex);
+				await updateFile(currentParsed);
+			},
+
+			onPhotoChange: async (photoPath: string): Promise<void> => {
+				currentParsed = setMealPhoto(currentParsed, photoPath);
+				await updateFile(currentParsed);
+			},
+
+			onFlushChanges: async (): Promise<void> => {
+				// No pending changes model for meal log
+			}
+		};
 	}
 }

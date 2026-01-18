@@ -1,5 +1,6 @@
-import { StudyMetadata, TimerState } from '../../types';
+import { StudyMetadata, TimerState, TimerStyle } from '../../types';
 import { formatDuration, formatDurationHuman } from '../../parser/exercise';
+import { renderTimerByStyle } from '../timer/styles';
 
 export interface StudyHeaderElements {
 	titleEl: HTMLElement;
@@ -11,12 +12,13 @@ export function renderStudyHeader(
 	container: HTMLElement,
 	metadata: StudyMetadata,
 	timerState: TimerState | null,
-	isTimerRunning: boolean
+	isTimerRunning: boolean,
+	timerStyle: TimerStyle = 'digital'
 ): StudyHeaderElements {
 	const headerEl = container.createDiv({ cls: 'study-header' });
 
 	const topRow = headerEl.createDiv({ cls: 'study-header-top' });
-	
+
 	const titleEl = topRow.createDiv({ cls: 'study-title' });
 	const subjectIcon = getSubjectIcon(metadata.subject);
 	titleEl.createSpan({ cls: 'study-subject-icon', text: subjectIcon });
@@ -26,7 +28,7 @@ export function renderStudyHeader(
 	}
 
 	const timerEl = topRow.createDiv({ cls: 'study-timer' });
-	renderTimerContent(timerEl, metadata, timerState, isTimerRunning);
+	renderTimerContent(timerEl, metadata, timerState, isTimerRunning, timerStyle);
 
 	const scoresEl = headerEl.createDiv({ cls: 'study-scores' });
 	if (metadata.state === 'completed') {
@@ -47,14 +49,14 @@ function renderTimerContent(
 	timerEl: HTMLElement,
 	metadata: StudyMetadata,
 	timerState: TimerState | null,
-	isTimerRunning: boolean
+	isTimerRunning: boolean,
+	timerStyle: TimerStyle
 ): void {
 	if (metadata.state === 'completed' && metadata.totalDuration) {
 		timerEl.createSpan({ cls: 'study-timer-value', text: metadata.totalDuration });
 		timerEl.createSpan({ cls: 'study-timer-indicator recorded', text: ' ✓' });
 	} else if (isTimerRunning && timerState) {
-		timerEl.createSpan({ cls: 'study-timer-value', text: formatDuration(timerState.workoutElapsed) });
-		timerEl.createSpan({ cls: 'study-timer-indicator count-up', text: ' ▲' });
+		renderTimerByStyle(timerEl, timerState, timerStyle);
 	} else {
 		timerEl.createSpan({ cls: 'study-timer-value', text: '--:--' });
 	}
@@ -97,9 +99,8 @@ function getSubjectIcon(subject: string): string {
 
 export function updateStudyHeaderTimer(
 	timerEl: HTMLElement,
-	timerState: TimerState
+	timerState: TimerState,
+	timerStyle: TimerStyle = 'digital'
 ): void {
-	timerEl.empty();
-	timerEl.createSpan({ cls: 'study-timer-value', text: formatDuration(timerState.workoutElapsed) });
-	timerEl.createSpan({ cls: 'study-timer-indicator count-up', text: ' ▲' });
+	renderTimerByStyle(timerEl, timerState, timerStyle);
 }

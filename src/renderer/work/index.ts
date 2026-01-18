@@ -1,4 +1,4 @@
-import { ParsedWorkLog, WorkLogCallbacks, TimerState } from '../../types';
+import { ParsedWorkLog, WorkLogCallbacks, TimerState, TimerStyle } from '../../types';
 import { renderWorkHeader, updateWorkHeaderTimer, WorkHeaderElements } from './header';
 import { renderWorkTask, updateWorkTaskTimer, WorkTaskElements } from './task';
 import { renderWorkControls } from './controls';
@@ -13,10 +13,11 @@ export interface WorkRendererContext {
 	timerManager: TimerManager;
 	enableTimerSound?: boolean;
 	enableNotification?: boolean;
+	timerStyle?: TimerStyle;
 }
 
 export function renderWorkLog(ctx: WorkRendererContext): void {
-	const { el, parsed, callbacks, workId, timerManager, enableTimerSound = true, enableNotification = false } = ctx;
+	const { el, parsed, callbacks, workId, timerManager, enableTimerSound = true, enableNotification = false, timerStyle } = ctx;
 
 	el.empty();
 
@@ -34,7 +35,8 @@ export function renderWorkLog(ctx: WorkRendererContext): void {
 		container,
 		parsed.metadata,
 		timerState,
-		isTimerRunning
+		isTimerRunning,
+		timerStyle
 	);
 
 	if (parsed.tasks.length === 0 && parsed.metadata.state === 'planned') {
@@ -49,13 +51,12 @@ export function renderWorkLog(ctx: WorkRendererContext): void {
 		const task = parsed.tasks[i];
 		if (!task) continue;
 
-		const isActive = i === initialActiveIndex;
 		const elements = renderWorkTask(
 			tasksContainer,
 			task,
 			i,
-			isActive,
-			isActive ? timerState : null,
+			i === initialActiveIndex,
+			i === initialActiveIndex ? timerState : null,
 			callbacks,
 			parsed.metadata.state
 		);
@@ -81,7 +82,7 @@ export function renderWorkLog(ctx: WorkRendererContext): void {
 			: false;
 
 		timerManager.subscribe(workId, (state: TimerState) => {
-			updateWorkHeaderTimer(headerElements.timerEl, state);
+			updateWorkHeaderTimer(headerElements.timerEl, state, timerStyle);
 
 			const currentActiveIndex = timerManager.getActiveExerciseIndex(workId);
 

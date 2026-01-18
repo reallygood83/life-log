@@ -1,7 +1,7 @@
 {
 	"name": "obsidian-life-log",
-	"version": "2.5.4",
-	"description": "Track your study sessions and workouts with interactive timers, self-evaluation, and AI-friendly data export",
+	"version": "2.7.0",
+	"description": "Track your study sessions, workouts, work tasks, and meals with interactive timers, self-evaluation, and AI-powered analysis",
 	"main": "main.js",
 	"type": "module",
 	"scripts": {
