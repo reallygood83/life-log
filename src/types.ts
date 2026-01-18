@@ -451,7 +451,7 @@ export interface LifeLogSettings {
 	defaultRestDuration: number;
 	workoutTemplates: WorkoutTemplate[];
 
-	defaultTab: 'study' | 'work' | 'workout';
+	defaultTab: 'study' | 'work' | 'workout' | 'meal';
 	showRibbonIcon: boolean;
 
 	enableTimerSound: boolean;

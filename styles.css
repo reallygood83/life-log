@@ -2669,3 +2669,105 @@
 .ai-btn-save:hover {
 	opacity: 0.9;
 }
+
+/* ===== Meal Log Tab Styles ===== */
+.meal-log-tab {
+	padding: 16px;
+}
+
+.meal-type-grid {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 8px;
+	margin-top: 8px;
+}
+
+.meal-type-btn {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+	padding: 12px 8px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 8px;
+	background: var(--background-primary);
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+
+.meal-type-btn:hover {
+	background: var(--background-secondary-alt);
+}
+
+.meal-type-btn.selected {
+	border-color: var(--interactive-accent);
+	background: var(--interactive-accent-hover);
+}
+
+.meal-type-icon {
+	font-size: 1.5em;
+}
+
+.meal-type-label {
+	font-size: 0.85em;
+	color: var(--text-normal);
+}
+
+.food-input-list {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin-top: 8px;
+}
+
+.food-input-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.food-name-input {
+	flex: 1;
+	padding: 8px 12px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 6px;
+	background: var(--background-primary);
+	color: var(--text-normal);
+	font-size: 0.9em;
+}
+
+.food-name-input:focus {
+	border-color: var(--interactive-accent);
+	outline: none;
+}
+
+.food-remove-btn {
+	padding: 6px 10px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	background: transparent;
+	color: var(--text-muted);
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+
+.food-remove-btn:hover {
+	color: var(--color-red);
+	border-color: var(--color-red);
+}
+
+.add-food-btn {
+	margin-top: 8px;
+	padding: 8px 16px;
+	border: 1px dashed var(--background-modifier-border);
+	border-radius: 6px;
+	background: transparent;
+	color: var(--text-muted);
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+
+.add-food-btn:hover {
+	color: var(--text-normal);
+	border-color: var(--interactive-accent);
+}

@@ -4,11 +4,12 @@ import { FileCreator } from '../file/creator';
 import { StudyLogTab } from './StudyLogTab';
 import { WorkLogTab } from './WorkLogTab';
 import { WorkoutLogTab } from './WorkoutLogTab';
+import { MealLogTab } from './MealLogTab';
 
 export class QuickLogModal extends Modal {
 	private settings: LifeLogSettings;
 	private fileCreator: FileCreator;
-	private activeTab: 'study' | 'work' | 'workout';
+	private activeTab: 'study' | 'work' | 'workout' | 'meal';
 	private tabContentEl: HTMLElement | null = null;
 
 	constructor(app: App, settings: LifeLogSettings, fileCreator: FileCreator) {
@@ -65,10 +66,20 @@ export class QuickLogModal extends Modal {
 			this.updateActiveTab(tabsEl);
 			this.renderTabContent(container);
 		});
+
+		const mealTab = tabsEl.createEl('button', {
+			cls: `modal-tab ${this.activeTab === 'meal' ? 'active' : ''}`,
+			text: '식단 기록'
+		});
+		mealTab.addEventListener('click', () => {
+			this.activeTab = 'meal';
+			this.updateActiveTab(tabsEl);
+			this.renderTabContent(container);
+		});
 	}
 
 	private updateActiveTab(tabsEl: HTMLElement): void {
-		const tabs = ['study', 'work', 'workout'];
+		const tabs = ['study', 'work', 'workout', 'meal'];
 		tabsEl.querySelectorAll('.modal-tab').forEach((tab, idx) => {
 			if (tabs[idx] === this.activeTab) {
 				tab.classList.add('active');
@@ -106,7 +117,7 @@ export class QuickLogModal extends Modal {
 				onCreated
 			});
 			workTab.render();
-		} else {
+		} else if (this.activeTab === 'workout') {
 			const workoutTab = new WorkoutLogTab(this.tabContentEl, {
 				app: this.app,
 				settings: this.settings,
@@ -114,6 +125,14 @@ export class QuickLogModal extends Modal {
 				onCreated
 			});
 			workoutTab.render();
+		} else if (this.activeTab === 'meal') {
+			const mealTab = new MealLogTab(this.tabContentEl, {
+				app: this.app,
+				settings: this.settings,
+				fileCreator: this.fileCreator,
+				onCreated
+			});
+			mealTab.render();
 		}
 	}
 

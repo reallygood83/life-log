@@ -486,9 +486,11 @@ export class LifeLogSettingTab extends PluginSettingTab {
 			.setDesc('새 기록 모달을 열 때 기본으로 선택되는 탭')
 			.addDropdown(dropdown => dropdown
 				.addOption('study', '학습 기록')
+				.addOption('work', '업무 기록')
 				.addOption('workout', '운동 기록')
+				.addOption('meal', '식단 기록')
 				.setValue(this.plugin.settings.defaultTab)
-				.onChange(async (value: 'study' | 'workout') => {
+				.onChange(async (value: 'study' | 'work' | 'workout' | 'meal') => {
 					this.plugin.settings.defaultTab = value;
 					await this.plugin.saveSettings();
 				}));

@@ -1,7 +1,7 @@
 import { App, TFile, TFolder, normalizePath } from 'obsidian';
 import { LifeLogSettings } from '../types';
 
-export type LogType = 'study' | 'work' | 'workout';
+export type LogType = 'study' | 'work' | 'workout' | 'meal';
 
 export class FileCreator {
 	constructor(
@@ -89,6 +89,7 @@ export class FileCreator {
 			case 'study': return 'study-log';
 			case 'work': return 'work-log';
 			case 'workout': return 'life-log';
+			case 'meal': return 'meal-log';
 		}
 	}
 
@@ -123,8 +124,8 @@ export class FileCreator {
 
 	private buildHeading(type: LogType, date: Date): string {
 		const dateStr = this.formatDate(date);
-		const emojiMap: Record<LogType, string> = { study: '📚', work: '💼', workout: '🏋️' };
-		const labelMap: Record<LogType, string> = { study: '학습', work: '업무', workout: '운동' };
+		const emojiMap: Record<LogType, string> = { study: '📚', work: '💼', workout: '🏋️', meal: '🍽️' };
+		const labelMap: Record<LogType, string> = { study: '학습', work: '업무', workout: '운동', meal: '식단' };
 		return `# ${emojiMap[type]} ${dateStr} ${labelMap[type]} 기록`;
 	}
 
@@ -132,7 +133,7 @@ export class FileCreator {
 		const now = new Date();
 		const hours = now.getHours();
 		const period = hours < 12 ? '오전' : (hours < 18 ? '오후' : '저녁');
-		const labelMap: Record<LogType, string> = { study: '학습', work: '업무', workout: '운동' };
+		const labelMap: Record<LogType, string> = { study: '학습', work: '업무', workout: '운동', meal: '식단' };
 
 		return [
 			`## ${period} ${labelMap[type]} 세션`,
