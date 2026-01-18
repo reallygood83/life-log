@@ -38,7 +38,7 @@ export const DEFAULT_AI_SETTINGS: AIAnalysisSettings = {
 	geminiModel: 'gemini-2.5-flash',
 
 	grokApiKey: '',
-	grokModel: 'grok-4',
+	grokModel: 'grok-4-1-fast',
 
 	openRouterApiKey: '',
 	openRouterModel: 'anthropic/claude-sonnet-4',
@@ -595,19 +595,54 @@ export class LifeLogSettingTab extends PluginSettingTab {
 						}
 					}));
 
+			// 2026년 최신 모델 목록
+			const openaiModels = [
+				{ value: 'gpt-5.2', label: 'GPT-5.2 (최신)' },
+				{ value: 'gpt-5', label: 'GPT-5 (추천)' },
+				{ value: 'o4-mini', label: 'o4-mini (추론 최적화)' },
+				{ value: 'o3', label: 'o3 (추론 모델)' },
+				{ value: 'gpt-4o', label: 'GPT-4o' },
+				{ value: 'gpt-4o-mini', label: 'GPT-4o Mini (빠름)' },
+				{ value: 'custom', label: '직접 입력...' },
+			];
+
+			const isCustomModel = !openaiModels.some(m => m.value === aiSettings.openaiModel && m.value !== 'custom');
+
 			new Setting(sectionEl)
 				.setName('모델')
 				.setDesc('사용할 OpenAI 모델')
-				.addDropdown(dropdown => dropdown
-					.addOption('gpt-4o', 'GPT-4o (추천)')
-					.addOption('gpt-4o-mini', 'GPT-4o Mini (빠름)')
-					.addOption('gpt-4-turbo', 'GPT-4 Turbo')
-					.addOption('gpt-4', 'GPT-4')
-					.setValue(aiSettings.openaiModel)
-					.onChange(async (value) => {
-						aiSettings.openaiModel = value;
-						await this.plugin.saveSettings();
-					}));
+				.addDropdown(dropdown => {
+					for (const model of openaiModels) {
+						dropdown.addOption(model.value, model.label);
+					}
+					dropdown
+						.setValue(isCustomModel ? 'custom' : aiSettings.openaiModel)
+						.onChange(async (value) => {
+							if (value === 'custom') {
+								this.display();
+							} else {
+								aiSettings.openaiModel = value;
+								await this.plugin.saveSettings();
+								this.display();
+							}
+						});
+				});
+
+			// 커스텀 모델 입력
+			if (isCustomModel || aiSettings.openaiModel === 'custom') {
+				new Setting(sectionEl)
+					.setName('커스텀 모델명')
+					.setDesc('OpenAI 모델 ID를 직접 입력')
+					.addText(text => text
+						.setPlaceholder('gpt-5-turbo')
+						.setValue(isCustomModel ? aiSettings.openaiModel : '')
+						.onChange(async (value) => {
+							if (value) {
+								aiSettings.openaiModel = value;
+								await this.plugin.saveSettings();
+							}
+						}));
+			}
 		}
 	}
 
@@ -640,18 +675,53 @@ export class LifeLogSettingTab extends PluginSettingTab {
 						}
 					}));
 
+			// 2026년 최신 모델 목록
+			const geminiModels = [
+				{ value: 'gemini-3-pro-preview', label: 'Gemini 3 Pro (최신)' },
+				{ value: 'gemini-3-flash-preview', label: 'Gemini 3 Flash (빠름)' },
+				{ value: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro (추천)' },
+				{ value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
+				{ value: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash Lite (경량)' },
+				{ value: 'custom', label: '직접 입력...' },
+			];
+
+			const isCustomModel = !geminiModels.some(m => m.value === aiSettings.geminiModel && m.value !== 'custom');
+
 			new Setting(sectionEl)
 				.setName('모델')
 				.setDesc('사용할 Gemini 모델')
-				.addDropdown(dropdown => dropdown
-					.addOption('gemini-2.0-flash', 'Gemini 2.0 Flash (추천)')
-					.addOption('gemini-1.5-pro', 'Gemini 1.5 Pro')
-					.addOption('gemini-1.5-flash', 'Gemini 1.5 Flash')
-					.setValue(aiSettings.geminiModel)
-					.onChange(async (value) => {
-						aiSettings.geminiModel = value;
-						await this.plugin.saveSettings();
-					}));
+				.addDropdown(dropdown => {
+					for (const model of geminiModels) {
+						dropdown.addOption(model.value, model.label);
+					}
+					dropdown
+						.setValue(isCustomModel ? 'custom' : aiSettings.geminiModel)
+						.onChange(async (value) => {
+							if (value === 'custom') {
+								this.display();
+							} else {
+								aiSettings.geminiModel = value;
+								await this.plugin.saveSettings();
+								this.display();
+							}
+						});
+				});
+
+			// 커스텀 모델 입력
+			if (isCustomModel || aiSettings.geminiModel === 'custom') {
+				new Setting(sectionEl)
+					.setName('커스텀 모델명')
+					.setDesc('Gemini 모델 ID를 직접 입력')
+					.addText(text => text
+						.setPlaceholder('gemini-3-ultra')
+						.setValue(isCustomModel ? aiSettings.geminiModel : '')
+						.onChange(async (value) => {
+							if (value) {
+								aiSettings.geminiModel = value;
+								await this.plugin.saveSettings();
+							}
+						}));
+			}
 		}
 	}
 
@@ -684,17 +754,53 @@ export class LifeLogSettingTab extends PluginSettingTab {
 						}
 					}));
 
+			// 2026년 최신 모델 목록
+			const grokModels = [
+				{ value: 'grok-4-1-fast', label: 'Grok 4.1 Fast (최신/빠름)' },
+				{ value: 'grok-4-heavy', label: 'Grok 4 Heavy (고성능)' },
+				{ value: 'grok-4', label: 'Grok 4 (추천)' },
+				{ value: 'grok-3', label: 'Grok 3' },
+				{ value: 'grok-3-mini', label: 'Grok 3 Mini (경량)' },
+				{ value: 'custom', label: '직접 입력...' },
+			];
+
+			const isCustomModel = !grokModels.some(m => m.value === aiSettings.grokModel && m.value !== 'custom');
+
 			new Setting(sectionEl)
 				.setName('모델')
 				.setDesc('사용할 Grok 모델')
-				.addDropdown(dropdown => dropdown
-					.addOption('grok-3', 'Grok 3 (추천)')
-					.addOption('grok-2', 'Grok 2')
-					.setValue(aiSettings.grokModel)
-					.onChange(async (value) => {
-						aiSettings.grokModel = value;
-						await this.plugin.saveSettings();
-					}));
+				.addDropdown(dropdown => {
+					for (const model of grokModels) {
+						dropdown.addOption(model.value, model.label);
+					}
+					dropdown
+						.setValue(isCustomModel ? 'custom' : aiSettings.grokModel)
+						.onChange(async (value) => {
+							if (value === 'custom') {
+								this.display();
+							} else {
+								aiSettings.grokModel = value;
+								await this.plugin.saveSettings();
+								this.display();
+							}
+						});
+				});
+
+			// 커스텀 모델 입력
+			if (isCustomModel || aiSettings.grokModel === 'custom') {
+				new Setting(sectionEl)
+					.setName('커스텀 모델명')
+					.setDesc('Grok 모델 ID를 직접 입력')
+					.addText(text => text
+						.setPlaceholder('grok-5-preview')
+						.setValue(isCustomModel ? aiSettings.grokModel : '')
+						.onChange(async (value) => {
+							if (value) {
+								aiSettings.grokModel = value;
+								await this.plugin.saveSettings();
+							}
+						}));
+			}
 		}
 	}
 
@@ -729,12 +835,12 @@ export class LifeLogSettingTab extends PluginSettingTab {
 
 			new Setting(sectionEl)
 				.setName('기본 모델')
-				.setDesc('사용할 OpenRouter 모델 ID (예: anthropic/claude-3.5-sonnet)')
+				.setDesc('사용할 OpenRouter 모델 ID (예: anthropic/claude-sonnet-4)')
 				.addText(text => text
-					.setPlaceholder('anthropic/claude-3.5-sonnet')
+					.setPlaceholder('anthropic/claude-sonnet-4')
 					.setValue(aiSettings.openRouterModel)
 					.onChange(async (value) => {
-						aiSettings.openRouterModel = value || 'anthropic/claude-3.5-sonnet';
+						aiSettings.openRouterModel = value || 'anthropic/claude-sonnet-4';
 						await this.plugin.saveSettings();
 					}));
 
@@ -752,13 +858,17 @@ export class LifeLogSettingTab extends PluginSettingTab {
 						this.display();
 					}));
 
-			// Suggested models
+			// 2026년 추천 모델 목록
 			const suggestedModels = [
-				'anthropic/claude-3.5-sonnet',
-				'anthropic/claude-3-opus',
-				'google/gemini-pro-1.5',
-				'meta-llama/llama-3.1-405b-instruct',
-				'mistralai/mistral-large',
+				'anthropic/claude-sonnet-4',
+				'anthropic/claude-opus-4',
+				'openai/gpt-5',
+				'openai/o3',
+				'google/gemini-2.5-pro',
+				'google/gemini-3-flash-preview',
+				'meta-llama/llama-4-maverick',
+				'deepseek/deepseek-r1',
+				'mistralai/mistral-large-2',
 			];
 
 			const modelListEl = customModelsEl.createDiv({ cls: 'model-list' });
